@@ -1,0 +1,9 @@
+client/node_modules
+
+/build
+
+*.env
+*__pycache__
+
+npm-debug.log*
+

@@ -1,0 +1,35 @@
+.gantt-container {
+    overflow-x: auto;
+    margin: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.gantt-tooltip {
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.task-bar {
+    transition: opacity 0.2s;
+}
+
+.task-bar:hover {
+    opacity: 0.8;
+}
+
+.axis text {
+    font-size: 12px;
+}
+
+.axis path,
+.axis line {
+    stroke: #ccc;
+    shape-rendering: crispEdges;
+}

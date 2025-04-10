@@ -1,0 +1,15 @@
+flask==3.0.3
+flask-cors==4.0.0
+flask-migrate==4.0.5
+flask-sqlalchemy==3.1.1
+flask-jwt-extended==4.4.4
+
+marshmallow==3.20.2
+marshmallow-enum==1.5.1
+marshmallow-sqlalchemy==0.29.0
+marshmallow-oneofschema==3.1.0
+
+python-dotenv==1.0.0
+bcrypt==4.0.1
+SQLAlchemy==2.0.28
+email-validator==2.1.0.post1
