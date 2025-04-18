@@ -42,8 +42,8 @@ const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
       <div className="form-group">
         <label>Описание:</label>
         <textarea
-          value={formData.events[0]}
-          onChange={(e) => setFormData({ ...formData, events: [e.target.value] })}
+          value={formData.events}
+          onChange={(e) => setFormData({ ...formData, events: e.target.value })}
         />
       </div>
       <div className="form-actions">
