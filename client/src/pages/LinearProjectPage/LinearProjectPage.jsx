@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import "./LinearProjectPage.css"
 import TimelineControls from './TimelineControls';
+import EditForm from './EditForm';
 import Navbar from '../../components/Navbar/Navbar';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
@@ -26,7 +27,7 @@ const LinearProjectPage = () => {
     }
   ];
 
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
   const [lineSize, setLineSize] = useState(2);
   const [ballSize, setBallSize] = useState(60);
@@ -48,7 +49,7 @@ const LinearProjectPage = () => {
           id: m.id,
           year: m.year,
           color: m.color,
-          events: [m.description],
+          events: m.description,
         }));
 
         setYears(milestones);
@@ -66,37 +67,39 @@ const LinearProjectPage = () => {
   const handleSave = useCallback(async () => {
     if (!projectId) return;
 
-    const created = years
-      .filter(m => !m.id)
-      .map(m => ({
-        year: m.year,
-        color: m.color,
-        description: m.events[0],
-      }));
-
-    const updated = years
-      .filter(m => m.id)
-      .filter(m => {
-        const original = originalMilestones.find(om => om.id === m.id);
-        return original && (
-          original.year !== m.year ||
-          original.color !== m.color ||
-          original.events[0] !== m.events[0]
-        );
-      })
-      .map(m => ({
-        id: m.id,
-        year: m.year,
-        color: m.color,
-        description: m.events[0],
-      }));
-
-    const deleted = originalMilestones
-      .filter(om => !years.some(m => m.id === om.id))
-      .map(om => om.id);
+    const payload = {
+      created: years
+        .filter(m => !m.id)
+        .map(m => ({
+          year: m.year,
+          color: m.color,
+          description: m.events[0],
+        })),
+      updated: years
+        .filter(m => m.id)
+        .filter(m => {
+          const original = originalMilestones.find(om => om.id === m.id);
+          return original && (
+            original.year !== m.year ||
+            original.color !== m.color ||
+            original.events[0] !== m.events[0]
+          );
+        })
+        .map(m => ({
+          id: m.id,
+          year: m.year,
+          color: m.color,
+          description: m.events[0],
+        })),
+      deleted: originalMilestones
+        .filter(om => !years.some(m => m.id === om.id))
+        .map(om => ({ id: om.id })),
+      line_width: lineSize,
+      balls_size: ballSize
+    };
 
     try {
-      await projectService.update(projectId, { created, updated, deleted });
+      await projectService.update("linear", projectId, payload);
 
       const projectData = await projectService.getProject(projectId);
       const updatedMilestones = projectData.milestones.map(m => ({
@@ -108,27 +111,30 @@ const LinearProjectPage = () => {
 
       setYears(updatedMilestones);
       setOriginalMilestones(updatedMilestones);
+      setBallSize(projectData.balls_size);
+      setLineSize(projectData.line_width);
     } catch (error) {
       console.error('Ошибка сохранения:', error);
     }
-  }, [projectId, years, originalMilestones]);
+  }, [projectId, years, originalMilestones, lineSize, ballSize]);
 
   useEffect(() => {
     dataRef.current = { handleSave, years, originalMilestones, projectId };
-  
+
     const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
         e.preventDefault();
+        e.stopPropagation();
         dataRef.current.handleSave();
+        return false;
       }
     };
-  
+
     const handleBeforeUnload = (e) => {
       const { years, originalMilestones, projectId } = dataRef.current;
       if (!projectId) return;
-  
-      const hasChanges =
-        years.some(m => !m.id) ||
+
+      const hasChanges = years.some(m => !m.id) ||
         years.some(m => {
           const original = originalMilestones.find(om => om.id === m.id);
           return original && (
@@ -138,20 +144,16 @@ const LinearProjectPage = () => {
           );
         }) ||
         originalMilestones.some(om => !years.some(m => m.id === om.id));
-  
+
       if (hasChanges) {
         e.preventDefault();
         e.returnValue = '';
-        navigator.sendBeacon(
-          `/api/projects/${projectId}`,
-          JSON.stringify(dataRef.current)
-        );
       }
     };
-  
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('beforeunload', handleBeforeUnload);
-  
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -199,6 +201,13 @@ const LinearProjectPage = () => {
   };
 
   const handleUpdateBall = (updatedBall) => {
+    const isYearExist = years.some(y => 
+      y !== selectedBall && y.year === updatedBall.year
+    );
+    if (isYearExist) {
+      alert('Шарик с таким годом уже существует!');
+      return;
+    }
     setYears(prev =>
       prev.map(item =>
         item.year === selectedBall.year ? updatedBall : item
@@ -208,6 +217,11 @@ const LinearProjectPage = () => {
   };
 
   const handleAddYear = (newYear) => {
+    const isYearExist = years.some(y => y.year === newYear.year);
+    if (isYearExist) {
+      alert('Шарик с таким годом уже существует!');
+      return;
+    }
     setYears(prev => [...prev, {
       ...newYear,
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`
@@ -223,7 +237,9 @@ const LinearProjectPage = () => {
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <TimelineControls
+        lineSize={lineSize}
         onLineSizeChange={setLineSize}
+        ballSize={ballSize}
         onBallSizeChange={setBallSize}
         onAddYear={handleAddYear}
         isPanelOpen={isPanelOpen}
@@ -293,63 +309,5 @@ const LinearProjectPage = () => {
   );
 };
 
-const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
-  const [formData, setFormData] = useState(ball);
-
-  useEffect(() => {
-    setFormData(ball);
-  }, [ball]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onUpdate({
-      ...formData,
-      year: parseInt(formData.year)
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="edit-form">
-      <h3>Редактирование шарика</h3>
-
-      <div className="form-group">
-        <label>Год:</label>
-        <input
-          type="number"
-          value={formData.year}
-          onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Цвет:</label>
-        <input
-          type="color"
-          value={formData.color}
-          onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Описание:</label>
-        <textarea
-          value={formData.events[0]}
-          onChange={(e) => setFormData({ ...formData, events: [e.target.value] })}
-        />
-      </div>
-
-      <div className="form-actions">
-        <button type="button" onClick={onClose}>Отмена</button>
-        <button type="submit">Сохранить</button>
-      </div>
-      <div className="form-actions">
-        <button type="button" onClick={onClose}>Отмена</button>
-        <button type="button" onClick={() => onDelete(ball)}>Удалить</button>
-        <button type="submit">Сохранить</button>
-      </div>
-    </form>
-  );
-
-};
 
 export default LinearProjectPage;

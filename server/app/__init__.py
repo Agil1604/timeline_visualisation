@@ -9,7 +9,17 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 
-def create_app(config_class=Config):
+def create_app(config_class: object = Config) -> Flask:
+    """
+    Фабрика для создания и конфигурации экземпляров Flask-приложения
+
+    Args:
+        config_class (object): Конфигурационный класс приложения, содержайший поля необходимые для настройки приложения.
+
+    
+    Returns:
+        Flask: Готовое Flask-приложение.
+    """
     app = Flask(__name__)
     app.config.from_object(config_class)
     

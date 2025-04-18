@@ -222,6 +222,10 @@ const HomePage = () => {
         <form onSubmit={handleUpdateProject} className={styles.modalForm}>
           <h2>Редактировать проект</h2>
           <div className={styles.formGroup}>
+            <label>Тип проекта:</label>
+            <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+          </div>
+          <div className={styles.formGroup}>
             <label>Название проекта:</label>
             <input
               type="text"
@@ -247,19 +251,6 @@ const HomePage = () => {
             <div className={styles.counter}>
               {formData.description.length}/250
             </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Тип проекта:</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="linear">Линейный</option>
-              <option value="gantt">Гант</option>
-            </select>
           </div>
 
           <div className={styles.formButtons}>

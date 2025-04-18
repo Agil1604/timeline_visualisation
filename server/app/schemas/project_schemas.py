@@ -41,7 +41,7 @@ class ProjectLinearUniqueSchema(SQLAlchemyAutoSchema):
 class ProjectGanttUniqueSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = ProjectGantt  # Замените на вашу модель Gantt, если есть
-        fields = ("id", "type", "title", "description", "created_date", "last_modified_date", "task_dependencies", "critical_path")
+        fields = ("id", "type", "title", "description", "created_date", "last_modified_date")
         load_instance = True
     type = EnumField(ProjectType, by_value=True)
 
@@ -65,7 +65,19 @@ class ProjectUpdateSchema(Schema):
             raise ValidationError("Должно быть указано хотя бы одно поле для обновления")
         
 
-class SyncData(Schema):
+class BaseSyncData(Schema):
     created = fields.List(fields.Dict(), required=False)
     updated = fields.List(fields.Dict(), required=False)
     deleted = fields.List(fields.Dict(), required=False)
+
+class LinearSyncData(BaseSyncData):
+    line_width = fields.Int(required=False)
+    balls_size = fields.Int(required=False)
+
+class GanttSyncData(BaseSyncData):
+    pass
+
+updateSchemas = {
+    'linear': LinearSyncData(),
+    'gantt': GanttSyncData()
+}

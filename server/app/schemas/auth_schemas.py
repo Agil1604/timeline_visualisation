@@ -3,7 +3,8 @@ from email_validator import validate_email, EmailNotValidError
 
 def validate_email_format(email):
     try:
-        validate_email(email, check_deliverability=True).email
+        emailinfo = validate_email(email, check_deliverability=True)
+        return emailinfo.normalized
     except EmailNotValidError as e:
         raise ValidationError(str(e))
 
@@ -13,7 +14,9 @@ class UserSchema(Schema):
         validate_email_format
     ])
     nickname = fields.Str(required=True, validate=[
-        validate.Length(min=1, max=16)
+        validate.Length(min=1, max=16),
+        validate.Regexp(r'^[a-zA-Z0-9_-]+$', error="Invalid characters"),
+        validate.NoneOf([" "], error="Nickname cannot contain spaces")
     ])
 
 class RegistrationSchema(UserSchema):

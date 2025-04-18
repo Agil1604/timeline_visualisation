@@ -2,7 +2,6 @@ from app.models.project_linear import ProjectLinear, Milestone
 from app import db
 
 def linear_update_handler(project_id: int, data: dict) -> dict:
-    print()
     project = ProjectLinear.query.get(project_id)
     if not project:
         raise ValueError("no such project")
@@ -14,6 +13,8 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
     }
 
     try:
+        project.line_width = data.get('line_width')
+        project.balls_size = data.get('balls_size')
         for item in data.get('deleted', []):
             try:
                 milestone = Milestone.query.get(item['id'])

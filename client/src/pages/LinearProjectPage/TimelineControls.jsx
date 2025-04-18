@@ -1,7 +1,9 @@
 import { useState } from 'react';
-
+  
 const TimelineControls = ({ 
+  lineSize,
   onLineSizeChange,
+  ballSize,
   onBallSizeChange,
   onAddYear,
   isPanelOpen,
@@ -11,8 +13,6 @@ const TimelineControls = ({
   onZoomOut,
   onZoomReset
 }) => {
-  const [lineSize, setLineSize] = useState(2);
-  const [ballSize, setBallSize] = useState(60);
   const [newYear, setNewYear] = useState('');
   const [newEvent, setNewEvent] = useState('');
 
@@ -49,11 +49,7 @@ const TimelineControls = ({
               min="1"
               max="10"
               value={lineSize}
-              onChange={e => {
-                const val = parseInt(e.target.value);
-                setLineSize(val);
-                onLineSizeChange(val);
-              }}
+              onChange={e => onLineSizeChange(parseInt(e.target.value))}
             />
             <span>{lineSize}px</span>
           </div>
@@ -65,11 +61,7 @@ const TimelineControls = ({
               min="30"
               max="100"
               value={ballSize}
-              onChange={e => {
-                const val = parseInt(e.target.value);
-                setBallSize(val);
-                onBallSizeChange(val);
-              }}
+              onChange={e => onBallSizeChange(parseInt(e.target.value))}
             />
             <span>{ballSize}px</span>
           </div>

@@ -4,11 +4,10 @@ from app.schemas.project_schemas import (
     ProjectPolymorphicUniqueSchema,
     CreateProjectSchema,
     ProjectUpdateSchema,
-    SyncData
+    updateSchemas
 )
 from app.services.ProjectService import ProjectService
-from app.models.project_linear import ProjectLinear
-
+from datetime import datetime, timezone
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity,
@@ -113,8 +112,11 @@ update_handlers = {
 @jwt_required()
 def update(project_type, project_id):
     current_user = get_jwt_identity()
+    if project_type not in update_handlers or project_type not in updateSchemas:
+        return jsonify({'error': 'Project type not found'}), 404
+
     try:
-        schema = SyncData()
+        schema = updateSchemas[project_type]
         data = schema.load(request.json)
     except ValidationError as err:
         return jsonify({"errors": err.messages}), 400
@@ -123,11 +125,11 @@ def update(project_type, project_id):
         project = ProjectService.get_project(project_id)
         if project.owner != current_user:
             return jsonify({'error': "You don't own this project"}), 403
-        if project_type not in update_handlers:
-            return jsonify({'error': "Project type not found"}), 404
         
         handler = update_handlers[project_type]
         result = handler(project_id, data)
+        project.last_modified_date = datetime.now(timezone.utc)
+
         db.session.commit()
         return jsonify(result), 200
     except Exception as e:
