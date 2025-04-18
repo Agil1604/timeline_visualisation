@@ -2,6 +2,50 @@ from app.models.project_linear import ProjectLinear, Milestone
 from app import db
 
 def linear_update_handler(project_id: int, data: dict) -> dict:
+    """Обновляет содержимое линейных проектов
+
+    Args:
+        project_id (int): ID проекта, содержимое которого обновляется.
+        data (dict): Словарь с данными для обновления. Структура:
+            {
+                'created': [list новых milestones],
+                'updated': [list измененных milestones],
+                'deleted': [list ID удаляемых milestones]
+                'line_width': int
+                'balls_size': int
+            }
+
+    Returns:
+        dict: Результат выполнения операций. Пример структуры:
+        {
+            'created': [{'year': int, 'server_id': int}],  # Для созданных элементов
+            'updated': [int],                               # ID обновленных элементов
+            'deleted': [int],                               # ID удаленных элементов
+            'conflicts': [                                  # Ошибки при выполнении
+                {
+                    'type': str,                            # Тип операции ('create', 'update', 'delete')
+                    'id': int | None,                       # ID элемента (если есть)
+                    'year': int | None,                     # Год (для создания)
+                    'error': str                            # Сообщение об ошибке
+                }
+            ]
+        }
+
+    Raises:
+        ValueError: Если проект с указанным ID не найден.
+        Exception: Общие ошибки выполнения с откатом транзакции.
+
+    Examples:
+        Пример входных данных:
+        >>> data = {
+        ...     'created': [{'year': 2024, 'description': 'Test', 'color': '#fff'}],
+        ...     'updated': [{'id': 1, 'year': 2023, 'description': 'Updated'}],
+        ...     'deleted': [{'id': 2}],
+        ...     'line_width': 6,
+        ...     'balls_size': 60
+        ... }
+        >>> linear_update_handler(123, data)
+    """
     project = ProjectLinear.query.get(project_id)
     if not project:
         raise ValueError("no such project")

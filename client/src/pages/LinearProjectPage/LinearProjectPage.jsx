@@ -29,11 +29,15 @@ const LinearProjectPage = () => {
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
+  const [selectedReadOnlyBall, setSelectedReadOnlyBall] = useState(null);
   const [lineSize, setLineSize] = useState(2);
   const [ballSize, setBallSize] = useState(60);
   const [years, setYears] = useState([]);
   const [editPosition, setEditPosition] = useState({ x: 0, y: 0 });
+  const [readOnlyPosition, setReadOnlyPosition] = useState({ x: 0, y: 0 });
   const popupRef = useRef(null);
+  const readOnlyPopupRef = useRef(null);
+  const clickTimer = useRef(null);
 
   const [zoomLevel, setZoomLevel] = useState(1);
   const projectContainerRef = useRef(null);
@@ -73,7 +77,7 @@ const LinearProjectPage = () => {
         .map(m => ({
           year: m.year,
           color: m.color,
-          description: m.events[0],
+          description: m.events,
         })),
       updated: years
         .filter(m => m.id)
@@ -82,14 +86,14 @@ const LinearProjectPage = () => {
           return original && (
             original.year !== m.year ||
             original.color !== m.color ||
-            original.events[0] !== m.events[0]
+            original.events !== m.events
           );
         })
         .map(m => ({
           id: m.id,
           year: m.year,
           color: m.color,
-          description: m.events[0],
+          description: m.events,
         })),
       deleted: originalMilestones
         .filter(om => !years.some(m => m.id === om.id))
@@ -97,6 +101,7 @@ const LinearProjectPage = () => {
       line_width: lineSize,
       balls_size: ballSize
     };
+    console.log(payload);
 
     try {
       await projectService.update("linear", projectId, payload);
@@ -106,7 +111,7 @@ const LinearProjectPage = () => {
         id: m.id,
         year: m.year,
         color: m.color,
-        events: [m.description],
+        events: m.description,
       }));
 
       setYears(updatedMilestones);
@@ -140,7 +145,7 @@ const LinearProjectPage = () => {
           return original && (
             original.year !== m.year ||
             original.color !== m.color ||
-            original.events[0] !== m.events[0]
+            original.events !== m.events
           );
         }) ||
         originalMilestones.some(om => !years.some(m => m.id === om.id));
@@ -166,8 +171,14 @@ const LinearProjectPage = () => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (popupRef.current && !popupRef.current.contains(e.target)) {
+      if (popupRef.current && !popupRef.current.contains(e.target) && !e.target.closest('.timeline-ball')) {
         setSelectedBall(null);
+      }
+
+      if (readOnlyPopupRef.current &&
+        !readOnlyPopupRef.current.contains(e.target) &&
+        !e.target.closest('.timeline-ball')) {
+        setSelectedReadOnlyBall(null);
       }
     };
 
@@ -183,7 +194,30 @@ const LinearProjectPage = () => {
     return ((year - minYear) / (maxYear - minYear || 1)) * 90 + 5;
   };
 
+  const handleBallClick = (ball, e) => {
+    if (clickTimer.current) clearTimeout(clickTimer.current);
+
+    clickTimer.current = setTimeout(() => {
+      if (!selectedBall) {
+        const container = projectContainerRef.current;
+        const rect = container.getBoundingClientRect();
+        const scale = zoomLevel;
+        const scrollLeft = container.scrollLeft;
+        const scrollTop = container.scrollTop;
+
+        const x = (e.clientX - rect.left + scrollLeft) / scale;
+        const y = (e.clientY - rect.top + scrollTop) / scale;
+
+        setSelectedReadOnlyBall(ball);
+        setReadOnlyPosition({ x: x + 20, y: y - 50 });
+      }
+    }, 350);
+  };
+
   const handleDoubleClick = (ball, e) => {
+    clearTimeout(clickTimer.current);
+    clickTimer.current = null;
+
     const container = projectContainerRef.current;
     const rect = container.getBoundingClientRect();
     const scale = zoomLevel;
@@ -193,6 +227,7 @@ const LinearProjectPage = () => {
     const x = (e.clientX - rect.left + scrollLeft) / scale;
     const y = (e.clientY - rect.top + scrollTop) / scale;
 
+    setSelectedReadOnlyBall(null);
     setSelectedBall(ball);
     setEditPosition({
       x: x + 20,
@@ -227,6 +262,19 @@ const LinearProjectPage = () => {
       color: `#${Math.floor(Math.random() * 16777215).toString(16)}`
     }].sort((a, b) => a.year - b.year));
   };
+
+  const ReadOnlyPopup = ({ ball, onClose }) => (
+    <div className="read-only-popup">
+      <h3>{ball.year}</h3>
+      <div className="events">
+
+        <p>{ball.events}</p>
+      </div>
+      <button className="close-button" onClick={onClose}>
+        ×
+      </button>
+    </div>
+  );
 
   return (
     <div>
@@ -275,6 +323,7 @@ const LinearProjectPage = () => {
                       height: `${ballSize}px`,
                       backgroundColor: item.color
                     }}
+                    onClick={(e) => handleBallClick(item, e)}
                     onDoubleClick={(e) => handleDoubleClick(item, e)}
                   >
                     {item.year}
@@ -292,14 +341,28 @@ const LinearProjectPage = () => {
                   top: `${editPosition.y}px`
                 }}
               >
-                {selectedBall && (
-                  <EditForm
-                    ball={selectedBall}
-                    onUpdate={handleUpdateBall}
-                    onDelete={handleDeleteBall}
-                    onClose={() => setSelectedBall(null)}
-                  />
-                )}
+                <EditForm
+                  ball={selectedBall}
+                  onUpdate={handleUpdateBall}
+                  onDelete={handleDeleteBall}
+                  onClose={() => setSelectedBall(null)}
+                />
+              </div>
+            )}
+
+            {selectedReadOnlyBall && (
+              <div
+                className="edit-popup"
+                ref={readOnlyPopupRef}
+                style={{
+                  left: `${readOnlyPosition.x}px`,
+                  top: `${readOnlyPosition.y}px`
+                }}
+              >
+                <ReadOnlyPopup
+                  ball={selectedReadOnlyBall}
+                  onClose={() => setSelectedReadOnlyBall(null)}
+                />
               </div>
             )}
           </div>
@@ -308,6 +371,5 @@ const LinearProjectPage = () => {
     </div>
   );
 };
-
 
 export default LinearProjectPage;
