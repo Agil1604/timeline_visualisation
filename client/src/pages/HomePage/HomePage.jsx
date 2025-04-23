@@ -45,6 +45,25 @@ const HomePage = () => {
     loadProjects();
   }, []);
 
+  const [sortBy, setSortBy] = useState('created');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const getSortedProjects = () => {
+    return [...projects].sort((a, b) => {
+      let comparison = 0;
+
+      if (sortBy === 'name') {
+        comparison = a.title.localeCompare(b.title);
+      } else {
+        const dateA = new Date(sortBy === 'created' ? a.created_date : a.last_modified_date);
+        const dateB = new Date(sortBy === 'created' ? b.created_date : b.last_modified_date);
+        comparison = dateA - dateB;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  };
+
   const handleCreateNew = () => setIsModalOpen(true);
 
   const closeModal = () => {
@@ -120,8 +139,28 @@ const HomePage = () => {
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <div className={styles.container}>
-        <h1>Мои проекты</h1>
-
+        <div className={styles.header}>
+          <h1>Мои проекты</h1>
+          <div className={styles.sortControls}>
+            <label>Упорядочить по:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={styles.sortSelect}
+            >
+              <option value="name">Названию</option>
+              <option value="created">Дате создания</option>
+              <option value="updated">Дате последнего обновления</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+              className={styles.sortOrderButton}
+              type="button"
+            >
+              {sortOrder === 'asc' ? '↑' : '↓'}
+            </button>
+          </div>
+        </div>
         <div className={styles.projectsGrid}>
           <div
             className={`${styles.newProjectCard} ${cardStyles.card}`}
@@ -131,7 +170,7 @@ const HomePage = () => {
             <div className={cardStyles.title}>Новый проект</div>
           </div>
 
-          {projects.map(project => (
+          {getSortedProjects().map(project => (
             <ProjectCard
               key={project.id}
               project={project}

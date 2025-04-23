@@ -1,9 +1,20 @@
+/* Основные контейнеры и макет */
 .container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Сетка проектов */
 .projectsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -11,13 +22,7 @@
   padding: 20px 0;
 }
 
-@media (max-width: 600px) {
-  .projectsGrid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-}
-
+/* Карточка нового проекта */
 .newProjectCard {
   border: 2px dashed #dadce0;
   border-radius: 8px;
@@ -48,7 +53,49 @@
   font-size: 1.1em;
 }
 
-/* Стили для формы */
+/* Элементы управления сортировкой */
+.sortControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sortSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sortSelect:hover {
+  border-color: #4285f4;
+  box-shadow: 0 0 0 1px #4285f4;
+}
+
+.sortOrderButton {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sortOrderButton:hover {
+  border-color: #4285f4;
+  color: #4285f4;
+  transform: scale(1.05);
+}
+
+/* Модальные формы */
 .modalForm {
   display: flex;
   flex-direction: column;
@@ -99,9 +146,38 @@
   background-color: #f4f4f4;
   color: #333;
 }
+
 .counter {
   font-size: 0.8rem;
   color: #666;
   text-align: right;
   margin-top: 0.25rem;
+}
+
+/* Адаптивные стили */
+@media (max-width: 600px) {
+  .projectsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sortControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sortSelect {
+    width: 70%;
+  }
+
+  .sortOrderButton {
+    padding: 0.4rem 0.7rem;
+  }
 }
