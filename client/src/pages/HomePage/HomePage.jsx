@@ -112,157 +112,159 @@ const HomePage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <Navbar
         items={items}
         addLogout={true}
         isMenuOpen={isMenuOpen}
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
-      <h1>Мои проекты</h1>
+      <div className={styles.container}>
+        <h1>Мои проекты</h1>
 
-      <div className={styles.projectsGrid}>
-        <div
-          className={`${styles.newProjectCard} ${cardStyles.card}`}
-          onClick={handleCreateNew}
-        >
-          <div className={cardStyles.icon}>+</div>
-          <div className={cardStyles.title}>Новый проект</div>
+        <div className={styles.projectsGrid}>
+          <div
+            className={`${styles.newProjectCard} ${cardStyles.card}`}
+            onClick={handleCreateNew}
+          >
+            <div className={cardStyles.icon}>+</div>
+            <div className={cardStyles.title}>Новый проект</div>
+          </div>
+
+          {projects.map(project => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onAbout={() => handleAboutProject(project)}
+              onEdit={() => handleEditProject(project)}
+              onDelete={() => handleDeleteProject(project.id)}
+            />
+          ))}
         </div>
 
-        {projects.map(project => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            onAbout={() => handleAboutProject(project)}
-            onEdit={() => handleEditProject(project)}
-            onDelete={() => handleDeleteProject(project.id)}
-          />
-        ))}
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <form onSubmit={handleSubmit} className={styles.modalForm}>
+            <h2>Создать новый проект</h2>
+            <div className={styles.formGroup}>
+              <label>Название проекта:</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                maxLength={30}
+              />
+              <div className={styles.counter}>
+                {formData.title.length}/30
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Описание:</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                maxLength={250}
+              />
+              <div className={styles.counter}>
+                {formData.description.length}/250
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Тип проекта:</label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="linear">Линейный</option>
+                <option value="gantt">Гант</option>
+              </select>
+            </div>
+
+            <div className={styles.formButtons}>
+              <button type="button" onClick={closeModal}>
+                Отмена
+              </button>
+              <button type="submit">
+                Создать
+              </button>
+            </div>
+          </form>
+        </Modal>
+
+        <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)}>
+          <div className={styles.modalForm}>
+            <h2>Информация о проекте</h2>
+            {selectedProject && (
+              <>
+                <div className={styles.formGroup}>
+                  <label>Название:</label>
+                  <p>{selectedProject.title}</p>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Описание:</label>
+                  <p>{selectedProject.description || 'Нет описания'}</p>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Тип проекта:</label>
+                  <p>{selectedProject.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+                </div>
+              </>
+            )}
+          </div>
+        </Modal>
+
+        <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+          <form onSubmit={handleUpdateProject} className={styles.modalForm}>
+            <h2>Редактировать проект</h2>
+            <div className={styles.formGroup}>
+              <label>Тип проекта:</label>
+              <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Название проекта:</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                maxLength={30}
+              />
+              <div className={styles.counter}>
+                {formData.title.length}/30
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Описание:</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                maxLength={250}
+              />
+              <div className={styles.counter}>
+                {formData.description.length}/250
+              </div>
+            </div>
+
+            <div className={styles.formButtons}>
+              <button type="button" onClick={() => setIsEditModalOpen(false)}>
+                Отмена
+              </button>
+              <button type="submit">
+                Сохранить
+              </button>
+            </div>
+          </form>
+        </Modal>
       </div>
-
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <form onSubmit={handleSubmit} className={styles.modalForm}>
-          <h2>Создать новый проект</h2>
-          <div className={styles.formGroup}>
-            <label>Название проекта:</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              maxLength={30}
-            />
-            <div className={styles.counter}>
-              {formData.title.length}/30
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Описание:</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              maxLength={250}
-            />
-            <div className={styles.counter}>
-              {formData.description.length}/250
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Тип проекта:</label>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="linear">Линейный</option>
-              <option value="gantt">Гант</option>
-            </select>
-          </div>
-
-          <div className={styles.formButtons}>
-            <button type="button" onClick={closeModal}>
-              Отмена
-            </button>
-            <button type="submit">
-              Создать
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)}>
-        <div className={styles.modalForm}>
-          <h2>Информация о проекте</h2>
-          {selectedProject && (
-            <>
-              <div className={styles.formGroup}>
-                <label>Название:</label>
-                <p>{selectedProject.title}</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Описание:</label>
-                <p>{selectedProject.description || 'Нет описания'}</p>
-              </div>
-              <div className={styles.formGroup}>
-                <label>Тип проекта:</label>
-                <p>{selectedProject.type === 'linear' ? 'Линейный' : 'Гант'}</p>
-              </div>
-            </>
-          )}
-        </div>
-      </Modal>
-
-      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-        <form onSubmit={handleUpdateProject} className={styles.modalForm}>
-          <h2>Редактировать проект</h2>
-          <div className={styles.formGroup}>
-            <label>Тип проекта:</label>
-            <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
-          </div>
-          <div className={styles.formGroup}>
-            <label>Название проекта:</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              maxLength={30}
-            />
-            <div className={styles.counter}>
-              {formData.title.length}/30
-            </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Описание:</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              maxLength={250}
-            />
-            <div className={styles.counter}>
-              {formData.description.length}/250
-            </div>
-          </div>
-
-          <div className={styles.formButtons}>
-            <button type="button" onClick={() => setIsEditModalOpen(false)}>
-              Отмена
-            </button>
-            <button type="submit">
-              Сохранить
-            </button>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 };
