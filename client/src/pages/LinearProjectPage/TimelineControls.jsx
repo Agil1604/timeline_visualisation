@@ -20,7 +20,7 @@ const TimelineControls = ({
     if (newYear && newEvent) {
       onAddYear({
         year: parseInt(newYear),
-        events: [newEvent]
+        events: newEvent
       });
       setNewYear('');
       setNewEvent('');

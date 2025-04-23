@@ -14,6 +14,7 @@ from flask_jwt_extended import (
 )
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import SQLAlchemyError
 from app import db
 
 project_bp = Blueprint('project', __name__)
@@ -88,6 +89,8 @@ def update_project(project_id):
         return jsonify({'error': str(e)}), 403
     except IntegrityError as e:
         return jsonify({'error': 'Conflict detected'}), 409
+    except SQLAlchemyError as e:
+        return jsonify({'error': str(e)}), 500
 
 @project_bp.route('/<int:project_id>', methods=['DELETE'])
 @jwt_required()

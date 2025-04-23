@@ -167,6 +167,7 @@ const LinearProjectPage = () => {
 
   const handleDeleteBall = useCallback((ballToDelete) => {
     setYears(prev => prev.filter(item => item !== ballToDelete));
+    setSelectedBall(null);
   }, []);
 
   useEffect(() => {

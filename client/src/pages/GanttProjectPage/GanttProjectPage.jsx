@@ -1,4 +1,6 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import { projectService } from '../../services/ProjectService';
 import {
   select,
   scaleTime,
@@ -13,108 +15,55 @@ import {
   line,
   curveBasis
 } from 'd3';
-
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';
 import TaskModal from './TaskModal';
 import TaskForm from './TaskForm';
-
 import './sharedStyles.css';
 import styles from './GanttProjectPage.module.css';
 
-
 const GanttChart = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { project: projectId } = useParams();
   const { user } = useAuth();
-  const items = [
-    {
-      title: 'Профиль',
-      path: `/user/${user.nickname}/profile`,
-    },
-    {
-      title: 'О нас',
-      path: WELCOME_PAGE,
-    }
-  ];
+  const containerRef = useRef();
+  const svgRef = useRef();
+  const tooltipRef = useRef();
+  const dataRef = useRef();
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      name: 'Составление ТЗ',
-      description: 'Разработка архитектуры проекта',
-      start: '2025-03-25',
-      end: '2025-04-01',
-      progress: 100,
-      dependencies: [],
-      isCritical: true
-    },
-    {
-      id: 2,
-      name: 'Проектирование',
-      description: 'Разработка архитектуры проекта',
-      start: '2025-04-01',
-      end: '2025-04-05',
-      progress: 60,
-      dependencies: [{ id: 1, type: 'FS' }],
-      isCritical: true
-    },
-    {
-      id: 3,
-      name: 'Тестирование',
-      description: 'Проведение unit и интеграционных тестов',
-      start: '2025-04-06',
-      end: '2025-04-10',
-      progress: 30,
-      dependencies: [{ id: 2, type: 'FS' }],
-      isCritical: true
-    },
-    {
-      id: 4,
-      name: 'Разработка UI',
-      description: 'Создание пользовательского интерфейса',
-      start: '2025-04-06',
-      end: '2025-04-12',
-      progress: 50,
-      dependencies: [{ id: 2, type: 'SS' }],
-      isCritical: false
-    },
-    {
-      id: 5,
-      name: 'Документирование',
-      description: 'Написание документации для API',
-      start: '2025-04-08',
-      end: '2025-04-15',
-      progress: 20,
-      dependencies: [{ id: 3, type: 'FF' }],
-      isCritical: false
-    },
-    {
-      id: 6,
-      name: 'Развертывание',
-      description: 'Деплой на production сервер',
-      start: '2025-04-13',
-      end: '2025-04-15',
-      progress: 0,
-      dependencies: [
-        { id: 4, type: 'FS' },
-        { id: 5, type: 'SF' }
-      ],
-      isCritical: true
-    }
-  ]);
-
+  const [tasks, setTasks] = useState([]);
+  const [originalTasks, setOriginalTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const margin = useMemo(() => ({
     top: 20,
     right: 30,
     bottom: 40,
     left: 200
   }), []);
+
+  // Загрузка проекта
   useEffect(() => {
-    if (!tasks.length) return;
+    const loadProject = async () => {
+      try {
+        const projectData = await projectService.getProject(projectId);
+        setTasks(projectData.tasks);
+        console.log(projectData)
+        setOriginalTasks(projectData.tasks);
+      } catch (error) {
+        console.error('Ошибка загрузки проекта:', error);
+      }
+    };
+
+    if (projectId) loadProject();
+  }, [projectId]);
+
+  // Расчет размеров графика
+  useEffect(() => {
+    if (!tasks.length || !containerRef.current) return;
 
     const parseTime = timeParse('%Y-%m-%d');
     const parsedTasks = tasks.map(task => ({
@@ -125,45 +74,122 @@ const GanttChart = () => {
 
     const minDate = min(parsedTasks, d => d.start);
     const maxDate = max(parsedTasks, d => d.end);
-
+    const containerWidth = containerRef.current.clientWidth;
     const dayWidth = 50;
     const daysDiff = timeDay.count(minDate, maxDate) + 1;
-    const width = daysDiff * dayWidth + margin.left + margin.right;
+    const width = Math.max(containerWidth, daysDiff * dayWidth + margin.left + margin.right);
 
     const bandHeight = 50;
     const paddingBetween = 10;
-    const taskCount = parsedTasks.length;
-    const innerHeight = taskCount * bandHeight + (taskCount - 1) * paddingBetween;
+    const innerHeight = tasks.length * (bandHeight + paddingBetween);
     const height = innerHeight + margin.top + margin.bottom;
 
     setDimensions({ width, height });
   }, [tasks, margin]);
 
-  const handleAddTask = (newTask) => {
-    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+  // Логика сохранения
+  const handleSave = useCallback(async () => {
+    if (!projectId) return;
 
-    setTasks([...tasks, {
-      id: newId,
-      name: newTask.name,
-      description: newTask.description || '',
-      start: newTask.start,
-      end: newTask.end,
-      progress: 0,
-      dependencies: [],
-      isCritical: newTask.isCritical
-    }]);
+    const created = tasks.filter(t => !originalTasks.some(ot => ot.id === t.id));
+    const updated = tasks.filter(t =>
+      originalTasks.some(ot =>
+        ot.id === t.id && (
+          ot.name !== t.name ||
+          ot.description !== t.description ||
+          ot.start !== t.start ||
+          ot.end !== t.end ||
+          ot.progress !== t.progress ||
+          ot.isCritical !== t.isCritical ||
+          JSON.stringify(ot.dependencies) !== JSON.stringify(t.dependencies)
+        )
+      )
+    );
+    const deleted = originalTasks.filter(ot => !tasks.some(t => t.id === ot.id));
 
-    setIsTaskFormOpen(false);
-  };
+    const payload = {
+      created: created.map(t => ({
+        id: t.id,
+        name: t.name,
+        description: t.description,
+        start: t.start,
+        end: t.end,
+        progress: t.progress,
+        isCritical: t.isCritical,
+        dependencies: t.dependencies
+      })),
+      updated: updated.map(t => ({
+        id: t.id,
+        ...t
+      })),
+      deleted: deleted.map(t => ({ id: t.id }))
+    };
 
-  const svgRef = useRef();
-  const tooltipRef = useRef();
+    try {
+      await projectService.update("gantt", projectId, payload);
+      const projectData = await projectService.getProject(projectId);
+      setTasks(projectData.tasks);
+      setOriginalTasks(projectData.tasks);
+    } catch (error) {
+      console.error('Ошибка сохранения:', error);
+      alert('Ошибка сохранения! Проверьте консоль для деталей.');
+    }
+  }, [projectId, tasks, originalTasks]);
 
+  // Обработчики клавиш и закрытия вкладки
+  useEffect(() => {
+    dataRef.current = { handleSave, tasks, originalTasks, projectId };
+
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
+        e.preventDefault();
+        dataRef.current.handleSave();
+      }
+    };
+
+    const handleBeforeUnload = (e) => {
+      const { tasks, originalTasks, projectId } = dataRef.current;
+      if (!projectId) return;
+
+      const hasChanges =
+        tasks.length !== originalTasks.length ||
+        tasks.some(t => !originalTasks.some(ot => ot.id === t.id)) ||
+        originalTasks.some(ot => !tasks.some(t => t.id === ot.id)) ||
+        tasks.some(t => {
+          const original = originalTasks.find(ot => ot.id === t.id);
+          return original && (
+            original.name !== t.name ||
+            original.description !== t.description ||
+            original.start !== t.start ||
+            original.end !== t.end ||
+            original.progress !== t.progress ||
+            original.isCritical !== t.isCritical ||
+            JSON.stringify(original.dependencies) !== JSON.stringify(t.dependencies)
+          );
+        });
+
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [handleSave, originalTasks, projectId, tasks]);
+
+  // Отрисовка графика
   useEffect(() => {
     if (!tasks.length || dimensions.width === 0) return;
 
     const svg = select(svgRef.current);
     svg.selectAll('*').remove();
+
 
     const parseTime = timeParse('%Y-%m-%d');
     const parsedTasks = tasks.map(task => ({
@@ -268,7 +294,7 @@ const GanttChart = () => {
       .attr('x', xScale(today) + 5)
       .attr('y', 20)
       .attr('fill', '#ff4444')
-      .text(timeFormat('%d %b')(today));
+      .text("Сегодня");
 
     // Стрелки добавляем в корневой SVG
     svg.append('defs').append('marker')
@@ -311,6 +337,40 @@ const GanttChart = () => {
 
   }, [tasks, dimensions, margin]);
 
+  // Обработчики задач
+  const handleAddTask = (newTask) => {
+    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+    setTasks(prev => [...prev, {
+      id: newId,
+      name: newTask.name,
+      description: newTask.description || '',
+      start: newTask.start,
+      end: newTask.end,
+      progress: 0,
+      dependencies: [],
+      isCritical: newTask.isCritical
+    }]);
+    setIsTaskFormOpen(false);
+  };
+
+  const handleTaskEdit = (editedTask) => {
+    setTasks(prevTasks =>
+      prevTasks.map(t =>
+        t.id === editedTask.id ? {
+          ...editedTask,
+          start: timeFormat('%Y-%m-%d')(editedTask.start),
+          end: timeFormat('%Y-%m-%d')(editedTask.end)
+        } : t
+      )
+    );
+    setSelectedTask(null);
+  };
+
+  const handleTaskDelete = (taskId) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  };
+
+
   const handleMouseOver = (event, d) => {
     select(tooltipRef.current)
       .style('opacity', 1)
@@ -340,19 +400,19 @@ const GanttChart = () => {
     let startX, endX;
 
     switch (type) {
-      case 'FS':
+      case 'fs':
         startX = xScale(dependency.end);
         endX = xScale(task.start);
         break;
-      case 'SS':
+      case 'ss':
         startX = xScale(dependency.start);
         endX = xScale(task.start);
         break;
-      case 'FF':
+      case 'ff':
         startX = xScale(dependency.end);
         endX = xScale(task.end);
         break;
-      case 'SF':
+      case 'sf':
         startX = xScale(dependency.start);
         endX = xScale(task.end);
         break;
@@ -372,54 +432,35 @@ const GanttChart = () => {
     ];
   };
 
-  const handleTaskEdit = (editedTask) => {
-    const updatedTask = {
-      ...editedTask,
-      start: timeFormat('%Y-%m-%d')(editedTask.start),
-      end: timeFormat('%Y-%m-%d')(editedTask.end)
-    };
-
-    setTasks(prevTasks =>
-      prevTasks.map(t =>
-        t.id === updatedTask.id ? updatedTask : t
-      )
-    );
-    closeModal();
-  };
-
-  const handleTaskDelete = (taskId) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-  };
-
-  const closeModal = () => { setSelectedTask(null); };
   return (
     <div>
       <Navbar
-        items={items}
+        items={
+          [
+            { title: 'Профиль', path: `/user/${user.nickname}/profile` },
+            { title: 'О нас', path: WELCOME_PAGE }
+          ]}
         addLogout={true}
         isMenuOpen={isMenuOpen}
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
-      <div className={styles.container} onClick={closeModal}>
+
+      <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
         <div className={styles.taskControls}>
           <button
             className={styles.newTaskButton}
-            onClick={() => setIsTaskFormOpen(!isTaskFormOpen)}
+            onClick={() => setIsTaskFormOpen(true)}
           >
             Новая задача
           </button>
         </div>
 
         <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
-        <div
-          ref={tooltipRef}
-          className={styles.tooltip}
-          style={{ opacity: 0 }}
-        ></div>
+        <div ref={tooltipRef} className={styles.tooltip} style={{ opacity: 0 }}></div>
 
         <TaskModal
           task={selectedTask}
-          onClose={closeModal}
+          onClose={() => setSelectedTask(null)}
           tasks={tasks}
           timeFormat={timeFormat}
           onEdit={handleTaskEdit}

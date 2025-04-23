@@ -38,7 +38,7 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
     Examples:
         Пример входных данных:
         >>> data = {
-        ...     'created': [{'year': 2024, 'description': 'Test', 'color': '#fff'}],
+        ...     'created': [{'year': 2024, 'description': 'Test', 'color': '#ffffff'}],
         ...     'updated': [{'id': 1, 'year': 2023, 'description': 'Updated'}],
         ...     'deleted': [{'id': 2}],
         ...     'line_width': 6,
@@ -60,16 +60,17 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
         project.line_width = data.get('line_width')
         project.balls_size = data.get('balls_size')
         for item in data.get('deleted', []):
+            id = item['id']
             try:
-                milestone = Milestone.query.get(item['id'])
+                milestone = Milestone.query.get(id)
                 if not milestone or milestone.project_id != project.id:
-                    raise Exception(f"Milestone {item['id']} not found")
+                    raise Exception(f"Milestone {id} not found")
                 db.session.delete(milestone)
-                result["deleted"].append(item['id'])
+                result["deleted"].append(id)
             except Exception as e:
                 result["conflicts"].append({
                     "type": "delete",
-                    "id": item.get('id'),
+                    "id": id,
                     "error": str(e)
                 })
 
@@ -113,5 +114,4 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
                 })
         return result
     except Exception as e:
-        db.session.rollback()
         raise

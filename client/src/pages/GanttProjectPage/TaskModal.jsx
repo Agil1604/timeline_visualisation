@@ -11,10 +11,10 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
 
   const getDependencyTypeName = (type) => {
     const types = {
-      'FS': 'Finish-to-Start',
-      'SS': 'Start-to-Start',
-      'FF': 'Finish-to-Finish',
-      'SF': 'Start-to-Finish'
+      'fs': 'Finish-to-Start',
+      'ss': 'Start-to-Start',
+      'ff': 'Finish-to-Finish',
+      'sf': 'Start-to-Finish'
     };
     return types[type] || 'Неизвестный тип';
   };
@@ -22,7 +22,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
   const handleDependencyChange = (taskId, checked) => {
     setEditedTask(prev => {
       const newDeps = checked
-        ? [...prev.dependencies, { id: taskId, type: 'FS' }]
+        ? [...prev.dependencies, { id: taskId, type: 'fs' }]
         : prev.dependencies.filter(d => d.id !== taskId);
       return { ...prev, dependencies: newDeps };
     });
@@ -242,14 +242,14 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
                     {t.name}
                   </label>
                   <select
-                    value={editedTask.dependencies.find(d => d.id === t.id)?.type || 'FS'}
+                    value={editedTask.dependencies.find(d => d.id === t.id)?.type || 'fs'}
                     onChange={e => handleDependencyTypeChange(t.id, e.target.value)}
                     disabled={!editedTask.dependencies.some(d => d.id === t.id)}
                   >
-                    <option value="FS">Finish-to-Start</option>
-                    <option value="SS">Start-to-Start</option>
-                    <option value="FF">Finish-to-Finish</option>
-                    <option value="SF">Start-to-Finish</option>
+                    <option value="fs">Finish-to-Start</option>
+                    <option value="ss">Start-to-Start</option>
+                    <option value="ff">Finish-to-Finish</option>
+                    <option value="sf">Start-to-Finish</option>
                   </select>
                 </div>
               ))}
