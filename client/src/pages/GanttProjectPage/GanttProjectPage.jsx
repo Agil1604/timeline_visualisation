@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import {
   select,
   scaleTime,
@@ -13,35 +13,20 @@ import {
   line,
   curveBasis
 } from 'd3';
-import SidePanel from '../../components/SidePanel/SidePanel';
 
-import './GanttProjectPage.css';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';
 import TaskModal from './TaskModal';
+import TaskForm from './TaskForm';
 
-const GanttChart = ({ width = 1000, height = 500 }) => {
-  const { user } = useAuth();
+import './sharedStyles.css';
+import styles from './GanttProjectPage.module.css';
+
+
+const GanttChart = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
-  const handleAddTask = (newTask) => {
-    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-
-    setTasks([...tasks, {
-      id: newId,
-      name: newTask.name,
-      description: newTask.description || '',
-      start: newTask.start,
-      end: newTask.end,
-      progress: 0,
-      dependencies: [],
-      isCritical: false
-    }]);
-
-    setIsTaskFormOpen(false);
-  };
+  const { user } = useAuth();
   const items = [
     {
       title: 'Профиль',
@@ -56,70 +41,80 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
-      name: 'Проектирование',
+      name: 'Составление ТЗ',
       description: 'Разработка архитектуры проекта',
-      start: '2024-03-01',
-      end: '2024-03-05',
-      progress: 60,
+      start: '2025-03-25',
+      end: '2025-04-01',
+      progress: 100,
       dependencies: [],
       isCritical: true
     },
     {
       id: 2,
-      name: 'Тестирование',
-      description: 'Проведение unit и интеграционных тестов',
-      start: '2024-03-06',
-      end: '2024-03-10',
-      progress: 30,
+      name: 'Проектирование',
+      description: 'Разработка архитектуры проекта',
+      start: '2025-04-01',
+      end: '2025-04-05',
+      progress: 60,
       dependencies: [{ id: 1, type: 'FS' }],
       isCritical: true
     },
     {
       id: 3,
-      name: 'Разработка UI',
-      description: 'Создание пользовательского интерфейса',
-      start: '2024-03-06',
-      end: '2024-03-12',
-      progress: 50,
-      dependencies: [{ id: 1, type: 'SS' }],
-      isCritical: false
+      name: 'Тестирование',
+      description: 'Проведение unit и интеграционных тестов',
+      start: '2025-04-06',
+      end: '2025-04-10',
+      progress: 30,
+      dependencies: [{ id: 2, type: 'FS' }],
+      isCritical: true
     },
     {
       id: 4,
-      name: 'Документирование',
-      description: 'Написание документации для API',
-      start: '2024-03-08',
-      end: '2024-03-15',
-      progress: 20,
-      dependencies: [{ id: 2, type: 'FF' }],
+      name: 'Разработка UI',
+      description: 'Создание пользовательского интерфейса',
+      start: '2025-04-06',
+      end: '2025-04-12',
+      progress: 50,
+      dependencies: [{ id: 2, type: 'SS' }],
       isCritical: false
     },
     {
       id: 5,
+      name: 'Документирование',
+      description: 'Написание документации для API',
+      start: '2025-04-08',
+      end: '2025-04-15',
+      progress: 20,
+      dependencies: [{ id: 3, type: 'FF' }],
+      isCritical: false
+    },
+    {
+      id: 6,
       name: 'Развертывание',
       description: 'Деплой на production сервер',
-      start: '2024-03-13',
-      end: '2024-03-15',
+      start: '2025-04-13',
+      end: '2025-04-15',
       progress: 0,
       dependencies: [
-        { id: 2, type: 'FS' },
-        { id: 3, type: 'SF' }
+        { id: 4, type: 'FS' },
+        { id: 5, type: 'SF' }
       ],
       isCritical: true
     }
   ]);
 
-  const svgRef = useRef();
-  const tooltipRef = useRef();
-
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const margin = useMemo(() => ({
+    top: 20,
+    right: 30,
+    bottom: 40,
+    left: 200
+  }), []);
   useEffect(() => {
-    if (!tasks?.length) return;
-
-    select(svgRef.current).selectAll('*').remove();
-
-    const margin = { top: 20, right: 30, bottom: 40, left: 200 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    if (!tasks.length) return;
 
     const parseTime = timeParse('%Y-%m-%d');
     const parsedTasks = tasks.map(task => ({
@@ -128,11 +123,63 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
       end: parseTime(task.end)
     }));
 
+    const minDate = min(parsedTasks, d => d.start);
+    const maxDate = max(parsedTasks, d => d.end);
+
+    const dayWidth = 50;
+    const daysDiff = timeDay.count(minDate, maxDate) + 1;
+    const width = daysDiff * dayWidth + margin.left + margin.right;
+
+    const bandHeight = 50;
+    const paddingBetween = 10;
+    const taskCount = parsedTasks.length;
+    const innerHeight = taskCount * bandHeight + (taskCount - 1) * paddingBetween;
+    const height = innerHeight + margin.top + margin.bottom;
+
+    setDimensions({ width, height });
+  }, [tasks, margin]);
+
+  const handleAddTask = (newTask) => {
+    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+
+    setTasks([...tasks, {
+      id: newId,
+      name: newTask.name,
+      description: newTask.description || '',
+      start: newTask.start,
+      end: newTask.end,
+      progress: 0,
+      dependencies: [],
+      isCritical: newTask.isCritical
+    }]);
+
+    setIsTaskFormOpen(false);
+  };
+
+  const svgRef = useRef();
+  const tooltipRef = useRef();
+
+  useEffect(() => {
+    if (!tasks.length || dimensions.width === 0) return;
+
+    const svg = select(svgRef.current);
+    svg.selectAll('*').remove();
+
+    const parseTime = timeParse('%Y-%m-%d');
+    const parsedTasks = tasks.map(task => ({
+      ...task,
+      start: parseTime(task.start),
+      end: parseTime(task.end)
+    }));
+
+    const minDate = min(parsedTasks, d => d.start);
+    const maxDate = max(parsedTasks, d => d.end);
+
+    const innerWidth = dimensions.width - margin.left - margin.right;
+    const innerHeight = dimensions.height - margin.top - margin.bottom;
+
     const xScale = scaleTime()
-      .domain([
-        min(parsedTasks, d => d.start),
-        max(parsedTasks, d => d.end)
-      ])
+      .domain([minDate, maxDate])
       .range([0, innerWidth])
       .nice();
 
@@ -141,26 +188,29 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
       .range([0, innerHeight])
       .padding(0.2);
 
-    const svg = select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height)
+    // Создаем основную группу с учетом margin
+    const chart = svg
+      .attr('width', dimensions.width)
+      .attr('height', dimensions.height)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Оси
-    svg.append('g')
+    // Ось X внутри chart
+    chart.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
       .call(axisBottom(xScale).ticks(timeDay.every(1)).tickFormat(timeFormat('%d %b')))
       .selectAll('text')
       .attr('transform', 'rotate(-45)')
       .style('text-anchor', 'end');
 
-    svg.append('g')
+    // Ось Y внутри chart
+    chart.append('g')
       .call(axisLeft(yScale).tickFormat(d =>
         parsedTasks.find(t => t.id === d)?.name || ''
       ));
 
-    svg.selectAll('.task-bg')
+    // Все элементы добавляем в chart
+    chart.selectAll('.task-bg')
       .data(parsedTasks)
       .enter()
       .append('rect')
@@ -171,11 +221,11 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
       .attr('height', yScale.bandwidth())
       .attr('fill', '#f5f5f5');
 
-    svg.selectAll('.task-bar')
+    chart.selectAll('.task-bar')
       .data(parsedTasks)
       .enter()
       .append('rect')
-      .attr('class', d => `task-bar ${d.isCritical ? 'critical' : ''}`)
+      .attr('class', d => d.isCritical ? styles.taskBarCritical : styles.taskBar)
       .attr('x', d => xScale(d.start))
       .attr('y', d => yScale(d.id))
       .attr('width', d => xScale(d.end) - xScale(d.start))
@@ -186,18 +236,55 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
       .on('mouseout', handleMouseOut)
       .on('click', handleTaskClick);
 
-    svg.selectAll('.task-progress')
+    chart.selectAll('.task-progress')
       .data(parsedTasks)
       .enter()
       .append('rect')
-      .attr('class', 'task-progress')
+      .attr('class', styles.taskProgress)
       .attr('x', d => xScale(d.start))
       .attr('y', d => yScale(d.id))
       .attr('width', d => (xScale(d.end) - xScale(d.start)) * (d.progress / 100))
       .attr('height', yScale.bandwidth())
       .attr('rx', 4)
-      .attr('ry', 4);
+      .attr('ry', 4)
+      .on('mouseover', handleMouseOver)
+      .on('mouseout', handleMouseOut)
+      .on('click', handleTaskClick);
 
+    const today = new Date();
+
+    chart.append('line')
+      .attr('class', 'today-line')
+      .attr('x1', xScale(today))
+      .attr('x2', xScale(today))
+      .attr('y1', 0)
+      .attr('y2', innerHeight)
+      .attr('stroke', '#ff4444')
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5');
+
+    chart.append('text')
+      .attr('class', 'today-label')
+      .attr('x', xScale(today) + 5)
+      .attr('y', 20)
+      .attr('fill', '#ff4444')
+      .text(timeFormat('%d %b')(today));
+
+    // Стрелки добавляем в корневой SVG
+    svg.append('defs').append('marker')
+      .attr('id', 'arrowhead')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 8)
+      .attr('refY', 0)
+      .attr('orient', 'auto')
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('xoverflow', 'visible')
+      .append('path')
+      .attr('d', 'M 0,-5 L 10,0 L 0,5')
+      .attr('fill', '#999');
+
+    // Связи добавляем в chart
     const linkGenerator = line()
       .x(d => d.x)
       .y(d => d.y)
@@ -212,30 +299,17 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
             dependency,
             xScale,
             yScale,
-            dep.type // Передаем тип связи
+            dep.type
           );
-          svg.append('path')
-            .attr('class', 'task-link')
+          chart.append('path')
+            .attr('class', styles.taskLink)
             .attr('d', linkGenerator(points))
             .attr('marker-end', 'url(#arrowhead)');
         }
       });
     });
 
-    svg.append('defs').append('marker')
-      .attr('id', 'arrowhead')
-      .attr('viewBox', '0 -5 10 10')
-      .attr('refX', 8)
-      .attr('refY', 0)
-      .attr('orient', 'auto')
-      .attr('markerWidth', 6)
-      .attr('markerHeight', 6)
-      .attr('xoverflow', 'visible')
-      .append('svg:path')
-      .attr('d', 'M 0,-5 L 10,0 L 0,5')
-      .attr('fill', '#999');
-
-  }, [tasks, width, height]);
+  }, [tasks, dimensions, margin]);
 
   const handleMouseOver = (event, d) => {
     select(tooltipRef.current)
@@ -313,106 +387,57 @@ const GanttChart = ({ width = 1000, height = 500 }) => {
     closeModal();
   };
 
+  const handleTaskDelete = (taskId) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  };
+
   const closeModal = () => { setSelectedTask(null); };
   return (
-    <div className="gantt-container" onClick={closeModal}>
+    <div>
       <Navbar
         items={items}
         addLogout={true}
         isMenuOpen={isMenuOpen}
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
-      <SidePanel>
-        <div className="panel-content">
+      <div className={styles.container} onClick={closeModal}>
+        <div className={styles.taskControls}>
           <button
-            className="new-task-button"
+            className={styles.newTaskButton}
             onClick={() => setIsTaskFormOpen(!isTaskFormOpen)}
           >
             Новая задача
           </button>
-
-          {isTaskFormOpen && (
-            <TaskForm
-              onAddTask={handleAddTask}
-              onCancel={() => setIsTaskFormOpen(false)}
-            />
-          )}
         </div>
-      </SidePanel>
-      <svg ref={svgRef}></svg>
-      <div
-        ref={tooltipRef}
-        className="gantt-tooltip"
-        style={{ opacity: 0 }}
-      ></div>
 
-      <TaskModal
-        task={selectedTask}
-        onClose={closeModal}
-        tasks={tasks}
-        timeFormat={timeFormat}
-        onEdit={handleTaskEdit}
-      />
+        <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
+        <div
+          ref={tooltipRef}
+          className={styles.tooltip}
+          style={{ opacity: 0 }}
+        ></div>
+
+        <TaskModal
+          task={selectedTask}
+          onClose={closeModal}
+          tasks={tasks}
+          timeFormat={timeFormat}
+          onEdit={handleTaskEdit}
+          onDelete={handleTaskDelete}
+        />
+        {isTaskFormOpen && (
+          <>
+            <div className="modal-backdrop" onClick={() => setIsTaskFormOpen(false)} />
+            <div className={styles.formModal}>
+              <TaskForm
+                onAddTask={handleAddTask}
+                onCancel={() => setIsTaskFormOpen(false)}
+              />
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  );
-};
-
-
-const TaskForm = ({ onAddTask, onCancel }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name || !start || !end) return;
-    
-    onAddTask({
-      name,
-      description,
-      start,
-      end
-    });
-  };
-
-  return (
-    <form className="task-form" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="Название задачи"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-      
-      <textarea
-        placeholder="Описание"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      
-      <div className="date-inputs">
-        <input
-          type="date"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          required
-        />
-        <span>до</span>
-        <input
-          type="date"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="form-buttons">
-        <button type="submit">Создать</button>
-        <button type="button" onClick={onCancel}>Отмена</button>
-      </div>
-    </form>
   );
 };
 

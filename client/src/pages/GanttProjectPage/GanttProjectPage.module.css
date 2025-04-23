@@ -1,0 +1,109 @@
+.container {
+    position: relative;
+    overflow: auto;
+    padding: 70px 15px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    width: 100%;
+    height: 100vh;
+}
+
+.tooltip {
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    transition: opacity 0.2s;
+}
+
+.taskControls {
+    position: fixed;
+    right: 20px;
+    top: 80px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+.newTaskButton {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.newTaskButton {
+    transform: translateY(-1px);
+}
+
+.taskBar {
+    transition: all 0.2s;
+    fill: #4CAF50;
+}
+
+.taskBarCritical {
+    transition: all 0.2s;
+    fill: #f44336;
+}
+
+.taskBar:hover,
+.taskBarCritical:hover {
+    opacity: 0.8;
+    stroke: #333;
+    stroke-width: 1px;
+}
+
+
+.taskLink {
+    fill: none;
+    stroke: #999;
+    stroke-width: 1.5;
+    stroke-dasharray: 5, 5;
+}
+
+.taskProgress {
+    fill: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+}
+
+.formModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-width: 500px;
+    width: 90%;
+}
+
+@media (max-width: 768px) {
+    .taskControls {
+        top: 70px;
+        right: 10px;
+        padding: 10px;
+    }
+
+    .newTaskButton {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
