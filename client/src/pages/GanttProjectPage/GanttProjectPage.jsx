@@ -198,6 +198,8 @@ const GanttChart = () => {
       end: parseTime(task.end)
     }));
 
+    const sortedTasks = [...parsedTasks].sort((a, b) => a.start - b.start);
+
     const minDate = min(parsedTasks, d => d.start);
     const maxDate = max(parsedTasks, d => d.end);
 
@@ -210,7 +212,7 @@ const GanttChart = () => {
       .nice();
 
     const yScale = scaleBand()
-      .domain(parsedTasks.map(d => d.id))
+      .domain(sortedTasks.map(d => d.id))
       .range([0, innerHeight])
       .padding(0.2);
 
@@ -232,12 +234,12 @@ const GanttChart = () => {
     // Ось Y внутри chart
     chart.append('g')
       .call(axisLeft(yScale).tickFormat(d =>
-        parsedTasks.find(t => t.id === d)?.name || ''
+        sortedTasks.find(t => t.id === d)?.name || ''
       ));
 
     // Все элементы добавляем в chart
     chart.selectAll('.task-bg')
-      .data(parsedTasks)
+      .data(sortedTasks)
       .enter()
       .append('rect')
       .attr('class', 'task-bg')
@@ -248,7 +250,7 @@ const GanttChart = () => {
       .attr('fill', '#f5f5f5');
 
     chart.selectAll('.task-bar')
-      .data(parsedTasks)
+      .data(sortedTasks)
       .enter()
       .append('rect')
       .attr('class', d => d.isCritical ? styles.taskBarCritical : styles.taskBar)
@@ -263,7 +265,7 @@ const GanttChart = () => {
       .on('click', handleTaskClick);
 
     chart.selectAll('.task-progress')
-      .data(parsedTasks)
+      .data(sortedTasks)
       .enter()
       .append('rect')
       .attr('class', styles.taskProgress)
@@ -316,9 +318,9 @@ const GanttChart = () => {
       .y(d => d.y)
       .curve(curveBasis);
 
-    parsedTasks.forEach(task => {
+      sortedTasks.forEach(task => {
       task.dependencies.forEach(dep => {
-        const dependency = parsedTasks.find(t => t.id === dep.id);
+        const dependency = sortedTasks.find(t => t.id === dep.id);
         if (dependency) {
           const points = calculateLinkPoints(
             task,
