@@ -13,10 +13,23 @@ const LinearProjectPage = () => {
   const { project: projectId } = useParams();
   const [originalMilestones, setOriginalMilestones] = useState([]);
   const dataRef = useRef();
-
   const { user } = useAuth();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [selectedBall, setSelectedBall] = useState(null);
+  const [selectedReadOnlyBall, setSelectedReadOnlyBall] = useState(null);
+  const [lineSize, setLineSize] = useState(2);
+  const [ballSize, setBallSize] = useState(60);
+  const [years, setYears] = useState([]);
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  const projectContainerRef = useRef(null);
+  const clickTimer = useRef(null);
+  const [isDragging, setIsDragging] = useState(null); // 'left' или 'right'
+  const timelineLineRef = useRef(null);
+  const dragStartX = useRef(0);
+  const dragStartRange = useRef({ start: 0, end: 0 });
+
   const items = [
     {
       title: 'Профиль',
@@ -28,23 +41,10 @@ const LinearProjectPage = () => {
     }
   ];
 
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [selectedBall, setSelectedBall] = useState(null);
-  const [selectedReadOnlyBall, setSelectedReadOnlyBall] = useState(null);
-  const [lineSize, setLineSize] = useState(2);
-  const [ballSize, setBallSize] = useState(60);
-  const [years, setYears] = useState([]);
   const [editPosition, setEditPosition] = useState({ x: 0, y: 0 });
   const [readOnlyPosition, setReadOnlyPosition] = useState({ x: 0, y: 0 });
   const popupRef = useRef(null);
   const readOnlyPopupRef = useRef(null);
-  const clickTimer = useRef(null);
-
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const projectContainerRef = useRef(null);
-  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 2));
-  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
-  const handleZoomReset = () => setZoomLevel(1);
 
   useEffect(() => {
     const loadProject = async () => {
@@ -61,6 +61,14 @@ const LinearProjectPage = () => {
         setOriginalMilestones(milestones);
         setBallSize(projectData.balls_size);
         setLineSize(projectData.line_width);
+
+        if (milestones.length > 0) {
+          const yearsArray = milestones.map(m => m.year);
+          setVisibleRange({
+            start: Math.min(...yearsArray) - 1,
+            end: Math.max(...yearsArray) + 1,
+          });
+        }
       } catch (error) {
         console.error('Ошибка загрузки проекта:', error);
       }
@@ -68,6 +76,91 @@ const LinearProjectPage = () => {
 
     if (projectId) loadProject();
   }, [projectId]);
+
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    const ZOOM_SPEED = 0.1;
+    const delta = e.deltaY > 0 ? 1 : -1;
+  
+    if (!timelineLineRef.current) return;
+  
+    const timelineRect = timelineLineRef.current.getBoundingClientRect();
+    const localX = e.clientX - timelineRect.left;
+    const cursorPositionFraction = localX / timelineRect.width;
+  
+    if (cursorPositionFraction < 0 || cursorPositionFraction > 1) return;
+  
+    setVisibleRange(prev => {
+      const currentStart = prev.start;
+      const currentEnd = prev.end;
+      const currentRange = currentEnd - currentStart;
+      
+      const yearAtCursor = currentStart + cursorPositionFraction * currentRange;
+      
+      const newRange = delta > 0 
+        ? currentRange * (1 + ZOOM_SPEED) 
+        : currentRange * (1 - ZOOM_SPEED);
+  
+      const newStart = yearAtCursor - cursorPositionFraction * newRange;
+      const newEnd = yearAtCursor + (1 - cursorPositionFraction) * newRange;
+  
+      return {
+        start: Math.round(newStart * 100) / 100,
+        end: Math.round(newEnd * 100) / 100
+      };
+    });
+  }, []);
+
+  const handleMouseDown = (side) => (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsDragging(side);
+    dragStartX.current = e.clientX;
+    dragStartRange.current = { ...visibleRange };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isDragging || !timelineLineRef.current) return;
+
+    const timelineRect = timelineLineRef.current.getBoundingClientRect();
+    const fullWidth = timelineRect.width;
+    const deltaX = e.clientX - dragStartX.current;
+
+    const deltaYears = (dragStartRange.current.end - dragStartRange.current.start) *
+      (deltaX / fullWidth) *
+      (isDragging === 'left' ? -1 : 1);
+
+    setVisibleRange(prev => {
+      let newStart = prev.start;
+      let newEnd = prev.end;
+
+      if (isDragging === 'left') {
+        newStart = dragStartRange.current.start + deltaYears;
+        newStart = Math.min(newStart, prev.end - 1);
+      } else {
+        newEnd = dragStartRange.current.end + deltaYears;
+        newEnd = Math.max(newEnd, prev.start + 1);
+      }
+
+      if (newStart >= newEnd) {
+        [newStart, newEnd] = [newEnd - 1, newStart + 1];
+      }
+
+      return {
+        start: Math.round(newStart * 100) / 100,
+        end: Math.round(newEnd * 100) / 100
+      };
+    });
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(null);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }, [handleMouseMove]);
+
 
   const handleSave = useCallback(async () => {
     if (!projectId) return;
@@ -188,13 +281,11 @@ const LinearProjectPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const calculatePosition = (year) => {
-    if (years.length < 2) return 50;
-    const yearsArray = years.map(item => item.year);
-    const minYear = Math.min(...yearsArray);
-    const maxYear = Math.max(...yearsArray);
-    return ((year - minYear) / (maxYear - minYear || 1)) * 90 + 5;
-  };
+  const calculatePosition = useCallback((year) => {
+    if (!visibleRange.start || !visibleRange.end) return 5;
+    const range = visibleRange.end - visibleRange.start;
+    return Math.max(0, Math.min(100, ((year - visibleRange.start) / range) * 100));
+  }, [visibleRange]);
 
   const handleBallClick = (ball, e) => {
     if (clickTimer.current) clearTimeout(clickTimer.current);
@@ -203,12 +294,11 @@ const LinearProjectPage = () => {
       if (!selectedBall) {
         const container = projectContainerRef.current;
         const rect = container.getBoundingClientRect();
-        const scale = zoomLevel;
         const scrollLeft = container.scrollLeft;
         const scrollTop = container.scrollTop;
 
-        const x = (e.clientX - rect.left + scrollLeft) / scale;
-        const y = (e.clientY - rect.top + scrollTop) / scale;
+        const x = (e.clientX - rect.left + scrollLeft);
+        const y = (e.clientY - rect.top + scrollTop);
 
         setSelectedReadOnlyBall(ball);
         setReadOnlyPosition({ x: x + 20, y: y - 50 });
@@ -222,12 +312,11 @@ const LinearProjectPage = () => {
 
     const container = projectContainerRef.current;
     const rect = container.getBoundingClientRect();
-    const scale = zoomLevel;
     const scrollLeft = container.scrollLeft;
     const scrollTop = container.scrollTop;
 
-    const x = (e.clientX - rect.left + scrollLeft) / scale;
-    const y = (e.clientY - rect.top + scrollTop) / scale;
+    const x = (e.clientX - rect.left + scrollLeft);
+    const y = (e.clientY - rect.top + scrollTop);
 
     setSelectedReadOnlyBall(null);
     setSelectedBall(ball);
@@ -238,7 +327,7 @@ const LinearProjectPage = () => {
   };
 
   const handleUpdateBall = (updatedBall) => {
-    const isYearExist = years.some(y => 
+    const isYearExist = years.some(y =>
       y !== selectedBall && y.year === updatedBall.year
     );
     if (isYearExist) {
@@ -294,44 +383,65 @@ const LinearProjectPage = () => {
         onAddYear={handleAddYear}
         isPanelOpen={isPanelOpen}
         onTogglePanel={() => setIsPanelOpen(!isPanelOpen)}
-        zoomLevel={zoomLevel}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        onZoomReset={handleZoomReset}
+        onZoomRangeReset={() => {
+          if (years.length > 0) {
+            const yearsArray = years.map(m => m.year);
+            setVisibleRange({
+              start: Math.min(...yearsArray),
+              end: Math.max(...yearsArray),
+            });
+          }
+        }}
+        visibleRange={visibleRange}
       />
 
       <div className={styles.projectMainContent}>
-        <div className={styles.projectContainerWrapper}>
-          <div
-            className={styles.projectContainer}
-            ref={projectContainerRef}
-            style={{
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: '0 0'
-            }}
-          >
-            <div className={styles.timelineLine} style={{ height: `${lineSize}px` }}></div>
+        <div
+          className={styles.projectContainerWrapper}
+          ref={projectContainerRef}
+          onWheel={handleWheel}
+        >
+          <div className={styles.projectContainer}>
+            <div
+              className={styles.timelineLine}
+              ref={timelineLineRef}
+              style={{ height: `${lineSize}px` }}
+            >
+              <div
+                className={`${styles.timelineBorderHandle} ${styles.left}`}
+                onMouseDown={handleMouseDown('left')}
+              />
+              <div
+                className={`${styles.timelineBorderHandle} ${styles.right}`}
+                onMouseDown={handleMouseDown('right')}
+              />
+            </div>
             <div className={styles.timelineItems}>
-              {years.map((item) => (
-                <div
-                  key={item.year}
-                  className={styles.timelineItem}
-                  style={{ left: `${calculatePosition(item.year)}%` }}
-                >
+              {years
+                .filter(item => item.year >= visibleRange.start && item.year <= visibleRange.end)
+                .map((item) => (
                   <div
-                    className={styles.timelineBall}
+                    key={item.year}
+                    className={styles.timelineItem}
                     style={{
-                      width: `${ballSize}px`,
-                      height: `${ballSize}px`,
-                      backgroundColor: item.color
+                      left: `${calculatePosition(item.year)}%`,
+                      pointerEvents: 'auto'
                     }}
-                    onClick={(e) => handleBallClick(item, e)}
-                    onDoubleClick={(e) => handleDoubleClick(item, e)}
                   >
-                    {item.year}
+                    <div
+                      className={styles.timelineBall}
+                      style={{
+                        width: `${ballSize}px`,
+                        height: `${ballSize}px`,
+                        backgroundColor: item.color
+                      }}
+                      onClick={(e) => handleBallClick(item, e)}
+                      onDoubleClick={(e) => handleDoubleClick(item, e)}
+                    >
+                      {item.year}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
 
             {selectedBall && (

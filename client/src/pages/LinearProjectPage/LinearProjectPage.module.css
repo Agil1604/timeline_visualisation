@@ -6,7 +6,8 @@
 .projectContainerWrapper {
     width: 100%;
     height: 70vh;
-    overflow: auto;
+    overflow: visible;
+    position: relative;
 }
 
 .projectContainer {
@@ -14,18 +15,48 @@
     width: 100%;
     min-height: 200px;
     margin: 40px 0;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .timelineLine {
     position: absolute;
     top: 50%;
-    left: 5%;
-    right: 5%;
+    left: 0;
+    right: 0;
     height: 2px;
     background: #333;
     transform: translateY(-50%);
     z-index: 0;
+}
+
+.timelineBorderHandle {
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+    z-index: 2;
+    transition: all 0.2s;
+}
+
+.timelineBorderHandle.left {
+    left: -10px;
+}
+
+.timelineBorderHandle.right {
+    right: -10px;
+}
+.timelineBorderHandle:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.timelineBorderHandle:active {
+    background: #333;
 }
 
 .timelineItems {
@@ -36,11 +67,12 @@
 .timelineItem {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    left: 0;
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: left 0.3s ease;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .timelineBall {
@@ -97,4 +129,4 @@
 .events p {
     white-space: pre-line;
     word-break: break-word;
-  }
+}

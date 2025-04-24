@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './TimelineControls.module.css';
 
-const TimelineControls = ({ 
+const TimelineControls = ({
   lineSize,
   onLineSizeChange,
   ballSize,
@@ -9,10 +9,8 @@ const TimelineControls = ({
   onAddYear,
   isPanelOpen,
   onTogglePanel,
-  zoomLevel,
-  onZoomIn,
-  onZoomOut,
-  onZoomReset
+  onZoomRangeReset,
+  visibleRange
 }) => {
   const [newYear, setNewYear] = useState('');
   const [newEvent, setNewEvent] = useState('');
@@ -37,10 +35,8 @@ const TimelineControls = ({
       {isPanelOpen && (
         <>
           <div className={styles.controlGroup}>
-            <button onClick={onZoomIn}>+</button>
-            <button onClick={onZoomOut}>-</button>
-            <button onClick={onZoomReset}>Сбросить</button>
-            <span>Масштаб: {Math.round(zoomLevel * 100)}%</span>
+            <button onClick={onZoomRangeReset}>Сбросить вид</button>
+            <span>Диапазон: {parseInt(visibleRange.start)} - {parseInt(visibleRange.end)}</span>
           </div>
 
           <div className={styles.controlGroup}>
