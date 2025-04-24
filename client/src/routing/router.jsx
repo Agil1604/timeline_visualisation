@@ -1,4 +1,4 @@
-import { HOME_PAGE, LOGIN_PAGE, PROJET_PAGE, REGISTER_PAGE, WELCOME_PAGE, GANTT_PAGE, PROFILE_PAGE } from './consts'
+import { HOME_PAGE, LOGIN_PAGE, PROJET_PAGE, REGISTER_PAGE, WELCOME_PAGE, GANTT_PAGE, PROFILE_PAGE, FORGOT_PASSWORD_PAGE } from './consts'
 
 import Home from '../pages/HomePage/HomePage';
 import Login from '../pages/LoginPage/LoginPage';
@@ -7,6 +7,7 @@ import Project from '../pages/LinearProjectPage/LinearProjectPage';
 import Register from '../pages/RegisterPage/RegisterPage';
 import GanttChart from '../pages/GanttProjectPage/GanttProjectPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import ForgotPassword from '../pages/ForgotPasswordPage/ForgotPasswordPage';
 
 export const publicRoutes = [
     {
@@ -20,6 +21,10 @@ export const publicRoutes = [
     {
         path: REGISTER_PAGE,
         component: <Register />,
+    },
+    {
+        path: FORGOT_PASSWORD_PAGE,
+        component: <ForgotPassword />,
     }
 ]
 

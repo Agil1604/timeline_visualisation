@@ -116,6 +116,22 @@
     text-decoration: underline;
 }
 
+.extra-link {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.extra-link a {
+    color: #718096;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.extra-link a:hover {
+    color: #4299e1;
+    text-decoration: underline;
+}
+
 @media (max-width: 480px) {
     .auth-container {
         padding: 1rem;

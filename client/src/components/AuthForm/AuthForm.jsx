@@ -12,6 +12,7 @@ const AuthForm = ({
   onSubmit,
   error,
   isLoading,
+  extraLink
 }) => (
   <div className="auth-container">
     <form className="auth-form" onSubmit={onSubmit}>
@@ -39,6 +40,8 @@ const AuthForm = ({
       >
         {isLoading ? 'Загрузка...' : buttonText}
       </button>
+
+      {extraLink}
 
       <div className="auth-link">
         {altText} <Link to={linkPath}>{linkText}</Link>

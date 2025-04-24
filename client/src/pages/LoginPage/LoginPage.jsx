@@ -5,7 +5,9 @@ import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../context/AuthContext';
 import { REGISTER_PAGE } from '../../routing/consts';
 import { LOGIN_FIELDS } from '../../components/AuthForm/consts';
-
+import { Link } from 'react-router-dom';
+import { FORGOT_PASSWORD_PAGE } from '../../routing/consts';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -44,9 +46,10 @@ const Login = () => {
     setIsLoading(true);
     try {
       const user = await login(formData);
+      toast.success('Вход выполнен успешно!');
       navigate(`/user/${user.nickname}`);
     } catch (err) {
-      setError(err.message || 'Ошибка при входе');
+      toast.error(err.message || 'Ошибка при входе');
     } finally {
       setIsLoading(false);
     }
@@ -74,6 +77,11 @@ const Login = () => {
         onSubmit={handleSubmit}
         error={error}
         isLoading={isLoading}
+        extraLink={
+          <div className="auth-link">
+            <Link to={FORGOT_PASSWORD_PAGE}>Забыли пароль?</Link>
+          </div>
+        }
       />
     </div>
   );

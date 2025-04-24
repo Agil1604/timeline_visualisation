@@ -5,6 +5,7 @@ import AuthForm from '../../components/AuthForm/AuthForm';
 import Navbar from '../../components/Navbar/Navbar';
 import { LOGIN_PAGE } from '../../routing/consts';
 import { REGISTER_FIELDS } from '../../components/AuthForm/consts';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,9 +49,10 @@ const Register = () => {
     setIsLoading(true);
     try {
       await register(formData);
+      toast.success('Регистрация прошла успешно!');
       navigate(LOGIN_PAGE);
     } catch (err) {
-      setError(err.message || 'Ошибка при регистрации');
+      toast.error(err.message || 'Ошибка при регистрации');
     } finally {
       setIsLoading(false);
     }
