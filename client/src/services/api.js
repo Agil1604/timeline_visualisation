@@ -36,6 +36,13 @@ api.interceptors.response.use(
         !originalRequest.url.includes(AUTH.REFRESH)) {
       originalRequest._retry = true;
 
+      const refreshToken = tokenService.getRefreshToken();
+      if (!refreshToken) {
+        tokenService.clearTokens();
+        window.location = LOGIN_PAGE;
+        return Promise.reject(error);
+      }
+
       if (!isRefreshing) {
         isRefreshing = true;
         try {

@@ -30,7 +30,7 @@ def get_user_projects():
         )
         return jsonify(schema.dump(projects, many=True)), 200
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'message': str(e)}), 400
     
 @project_bp.route('/<int:project_id>', methods=['GET'])
 @jwt_required()
@@ -41,7 +41,7 @@ def get_project(project_id):
         data = schema.dump(project)
         return jsonify(data), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"message": str(e)}), 500
     
 
 @project_bp.route('/', methods=['POST'])
@@ -52,7 +52,7 @@ def create_project():
     try:
         data = schema.load(request.json)
     except ValidationError as err:
-        return jsonify({"errors": err.messages}), 400
+        return jsonify({"message": err.messages}), 400
     try:
         project = ProjectService.create_project(
             owner=current_user,
@@ -62,7 +62,7 @@ def create_project():
         )
         return jsonify(schema.dump(project)), 201
     except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'message': str(e)}), 400
     
 @project_bp.route('/<int:project_id>', methods=['PUT'])
 @jwt_required()
@@ -73,7 +73,7 @@ def update_project(project_id):
     try:
         data = schema.load(request.json)
     except ValidationError as err:
-        return jsonify({"errors": err.messages}), 400
+        return jsonify({"message": err.messages}), 400
 
     try:
         project = ProjectService.update_project(
@@ -84,13 +84,13 @@ def update_project(project_id):
         )
         return jsonify(BaseProjectSchema().dump(project)), 200
     except ValueError as e:
-        return jsonify({'error': str(e)}), 404
+        return jsonify({'message': str(e)}), 404
     except PermissionError as e:
-        return jsonify({'error': str(e)}), 403
+        return jsonify({'message': str(e)}), 403
     except IntegrityError as e:
-        return jsonify({'error': 'Conflict detected'}), 409
+        return jsonify({'message': 'Conflict detected'}), 409
     except SQLAlchemyError as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'message': str(e)}), 500
 
 @project_bp.route('/<int:project_id>', methods=['DELETE'])
 @jwt_required()
@@ -100,7 +100,7 @@ def delete_project(project_id):
         ProjectService.delete_project(project_id, current_user)
         return jsonify({"message": "Проект удалён"}), 200
     except PermissionError as e:
-        return jsonify({'error': str(e)}), 403
+        return jsonify({'message': str(e)}), 403
     
 
 from app.handlers.linear_update_handler import linear_update_handler
@@ -116,18 +116,18 @@ update_handlers = {
 def update(project_type, project_id):
     current_user = get_jwt_identity()
     if project_type not in update_handlers or project_type not in updateSchemas:
-        return jsonify({'error': 'Project type not found'}), 404
+        return jsonify({'message': 'Project type not found'}), 404
 
     try:
         schema = updateSchemas[project_type]
         data = schema.load(request.json)
     except ValidationError as err:
-        return jsonify({"errors": err.messages}), 400
+        return jsonify({"message": err.messages}), 400
 
     try:
         project = ProjectService.get_project(project_id)
         if project.owner != current_user:
-            return jsonify({'error': "You don't own this project"}), 403
+            return jsonify({'message': "You don't own this project"}), 403
         
         handler = update_handlers[project_type]
         result = handler(project_id, data)
@@ -137,5 +137,5 @@ def update(project_type, project_id):
         return jsonify(result), 200
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"message": str(e)}), 500
     
