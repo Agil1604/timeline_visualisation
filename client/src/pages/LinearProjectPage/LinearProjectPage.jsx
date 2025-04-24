@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import "./LinearProjectPage.css"
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
 import Navbar from '../../components/Navbar/Navbar';
@@ -7,6 +6,8 @@ import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
 import { useParams } from 'react-router-dom';
 import { projectService } from '../../services/ProjectService';
+import './sharedStyles.css';
+import styles from './LinearProjectPage.module.css';
 
 const LinearProjectPage = () => {
   const { project: projectId } = useParams();
@@ -265,13 +266,13 @@ const LinearProjectPage = () => {
   };
 
   const ReadOnlyPopup = ({ ball, onClose }) => (
-    <div className="read-only-popup">
+    <div className={styles.readOnlyPopup}>
       <h3>{ball.year}</h3>
-      <div className="events">
+      <div className={styles.events}>
 
         <p>{ball.events}</p>
       </div>
-      <button className="close-button" onClick={onClose}>
+      <button className={styles.closeButton} onClick={onClose}>
         ×
       </button>
     </div>
@@ -299,26 +300,26 @@ const LinearProjectPage = () => {
         onZoomReset={handleZoomReset}
       />
 
-      <div className="project-main-content">
-        <div className="project-container-wrapper">
+      <div className={styles.projectMainContent}>
+        <div className={styles.projectContainerWrapper}>
           <div
-            className="project-container"
+            className={styles.projectContainer}
             ref={projectContainerRef}
             style={{
               transform: `scale(${zoomLevel})`,
               transformOrigin: '0 0'
             }}
           >
-            <div className="timeline-line" style={{ height: `${lineSize}px` }}></div>
-            <div className="timeline-items">
+            <div className={styles.timelineLine} style={{ height: `${lineSize}px` }}></div>
+            <div className={styles.timelineItems}>
               {years.map((item) => (
                 <div
                   key={item.year}
-                  className="timeline-item"
+                  className={styles.timelineItem}
                   style={{ left: `${calculatePosition(item.year)}%` }}
                 >
                   <div
-                    className="timeline-ball"
+                    className={styles.timelineBall}
                     style={{
                       width: `${ballSize}px`,
                       height: `${ballSize}px`,
@@ -335,7 +336,7 @@ const LinearProjectPage = () => {
 
             {selectedBall && (
               <div
-                className="edit-popup"
+                className={styles.editPopup}
                 ref={popupRef}
                 style={{
                   left: `${editPosition.x}px`,
@@ -353,7 +354,7 @@ const LinearProjectPage = () => {
 
             {selectedReadOnlyBall && (
               <div
-                className="edit-popup"
+                className={styles.editPopup}
                 ref={readOnlyPopupRef}
                 style={{
                   left: `${readOnlyPosition.x}px`,

@@ -3,11 +3,11 @@ import styles from './ProfilePage.module.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
   const { user, delete_, changePassword } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [error, setError] = useState('');
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
   const [passwords, setPasswords] = useState({
     oldPassword: '',
@@ -34,18 +34,18 @@ const ProfilePage = () => {
     e.preventDefault();
     const errors = validateForm();
     if (Object.keys(errors).length > 0) return setFormErrors(errors);
-    
+
     try {
       await changePassword({
         oldPassword: passwords.oldPassword,
         newPassword: passwords.newPassword
       });
-      alert('Пароль успешно изменен!');
+      toast.success('Пароль успешно изменен!');
       setShowChangePasswordForm(false);
       setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
       setFormErrors({});
     } catch (err) {
-      setError(err.message || 'Ошибка при смене пароля');
+      toast.error(err.message || 'Ошибка при смене пароля');
     }
   };
 
@@ -53,8 +53,9 @@ const ProfilePage = () => {
     if (window.confirm('Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить!')) {
       try {
         await delete_();
+        toast.success('Аккаунт успешно удален');
       } catch (err) {
-        setError('Не удалось удалить аккаунт');
+        toast.error(err.message || 'Не удалось удалить аккаунт');
       }
     }
   };
@@ -67,7 +68,7 @@ const ProfilePage = () => {
         isMenuOpen={isMenuOpen}
         toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
-      
+
       <div className={styles.content}>
         <div className={styles.profileHeader}>
           <h1>{user.nickname}</h1>
@@ -87,13 +88,13 @@ const ProfilePage = () => {
         {showChangePasswordForm && (
           <form onSubmit={handlePasswordChange} className={styles.passwordForm}>
             <h3>Смена пароля</h3>
-            
+
             <div className={styles.formGroup}>
               <label>Текущий пароль</label>
               <input
                 type="password"
                 value={passwords.oldPassword}
-                onChange={(e) => setPasswords({...passwords, oldPassword: e.target.value})}
+                onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
               />
               {formErrors.oldPassword && <span className={styles.errorText}>{formErrors.oldPassword}</span>}
             </div>
@@ -103,7 +104,7 @@ const ProfilePage = () => {
               <input
                 type="password"
                 value={passwords.newPassword}
-                onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
+                onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
               />
               {formErrors.newPassword && <span className={styles.errorText}>{formErrors.newPassword}</span>}
             </div>
@@ -113,7 +114,7 @@ const ProfilePage = () => {
               <input
                 type="password"
                 value={passwords.confirmPassword}
-                onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
+                onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
               />
               {formErrors.confirmPassword && <span className={styles.errorText}>{formErrors.confirmPassword}</span>}
             </div>
@@ -138,7 +139,7 @@ const ProfilePage = () => {
           >
             {showChangePasswordForm ? 'Скрыть форму' : 'Сменить пароль'}
           </button>
-          
+
           <button
             onClick={handleDeleteAccount}
             className={`${styles.btn} ${styles.btnDanger}`}
@@ -146,8 +147,6 @@ const ProfilePage = () => {
             Удалить аккаунт
           </button>
         </div>
-
-        {error && <div className={styles.errorMessage}>{error}</div>}
       </div>
     </div>
   );

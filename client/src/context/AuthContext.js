@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
   const delete_ = () => {
     setUser(null);
-    authService.delete_();
+    authService.deleteAccount();
   };
 
   const value = {

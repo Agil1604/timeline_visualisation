@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import styles from './HomePage.module.css';
 import cardStyles from '../../components/ProjectCard/ProjectCard.module.css';
 import Navbar from '../../components/Navbar/Navbar';
@@ -39,7 +40,7 @@ const HomePage = () => {
         const response = await projectService.getAll();
         setProjects(response);
       } catch (error) {
-        console.error('Ошибка при загрузке проектов:', error);
+        toast.error('Не удалось загрузить проекты');
       }
     };
     loadProjects();
@@ -77,8 +78,9 @@ const HomePage = () => {
       const response = await projectService.create(formData);
       setProjects(prev => [response, ...prev]);
       closeModal();
+      toast.success('Проект успешно создан');
     } catch (error) {
-      console.error('Ошибка при создании проекта:', error);
+      toast.error('Ошибка при создании проекта');
     }
   };
 
@@ -107,8 +109,9 @@ const HomePage = () => {
       try {
         await projectService.deleteProject(projectId);
         setProjects(prev => prev.filter(p => p.id !== projectId));
+        toast.success('Проект успешно удалён');
       } catch (error) {
-        console.error('Ошибка при удалении проекта:', error);
+        toast.error('Ошибка при удалении проекта');
       }
     }
   };
@@ -125,8 +128,9 @@ const HomePage = () => {
         p.id === selectedProject.id ? { ...p, ...formData } : p
       ));
       setIsEditModalOpen(false);
+      toast.success('Изменения сохранены');
     } catch (error) {
-      console.error('Ошибка при обновлении проекта:', error);
+      toast.error('Ошибка при сохранении изменений');
     }
   };
 

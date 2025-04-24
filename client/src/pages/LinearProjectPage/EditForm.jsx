@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+import styles from './EditForm.module.css';
+
 const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
   const [formData, setFormData] = useState(ball);
 
@@ -21,9 +23,9 @@ const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="edit-form">
-      <h3>Редактирование</h3>
-      <div className="form-group">
+    <form onSubmit={handleSubmit} className={styles.editForm}>
+      <h3 className={styles.formHeader}>Редактирование</h3>
+      <div className={styles.formGroup}>
         <label>Год:</label>
         <input
           type="number"
@@ -31,7 +33,7 @@ const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
           onChange={(e) => setFormData({ ...formData, year: e.target.value })}
         />
       </div>
-      <div className="form-group">
+      <div className={styles.formGroup}>
         <label>Цвет:</label>
         <input
           type="color"
@@ -39,17 +41,17 @@ const EditForm = ({ ball, onUpdate, onDelete, onClose }) => {
           onChange={(e) => setFormData({ ...formData, color: e.target.value })}
         />
       </div>
-      <div className="form-group">
+      <div className={styles.formGroup}>
         <label>Описание:</label>
         <textarea
           value={formData.events}
           onChange={(e) => setFormData({ ...formData, events: e.target.value })}
         />
       </div>
-      <div className="form-actions">
-        <button type="button" onClick={onClose}>Отмена</button>
-        <button type="button" onClick={() => onDelete(ball)}>Удалить</button>
-        <button type="submit">Сохранить</button>
+      <div className={styles.formActions}>
+        <button className={`${styles.formButton} ${styles.cancelButton}`} type="button" onClick={onClose}>Отмена</button>
+        <button className={`${styles.formButton} ${styles.deleteButton}`} type="button" onClick={() => onDelete(ball)}>Удалить</button>
+        <button className={`${styles.formButton} ${styles.submitButton}`} type="submit">Сохранить</button>
       </div>
     </form>
   );

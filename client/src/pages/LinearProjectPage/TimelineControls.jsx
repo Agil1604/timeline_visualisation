@@ -1,5 +1,6 @@
 import { useState } from 'react';
-  
+import styles from './TimelineControls.module.css';
+
 const TimelineControls = ({ 
   lineSize,
   onLineSizeChange,
@@ -28,21 +29,21 @@ const TimelineControls = ({
   };
 
   return (
-    <div className={`controls-panel ${isPanelOpen ? 'open' : 'closed'}`}>
-      <button className="toggle-btn" onClick={onTogglePanel}>
+    <div className={isPanelOpen ? styles.controlsPanel : styles.controlsPanelClosed}>
+      <button className={styles.toggleBtn} onClick={onTogglePanel}>
         {isPanelOpen ? '◀' : '▶'}
       </button>
 
       {isPanelOpen && (
         <>
-          <div className="control-group">
+          <div className={styles.controlGroup}>
             <button onClick={onZoomIn}>+</button>
             <button onClick={onZoomOut}>-</button>
             <button onClick={onZoomReset}>Сбросить</button>
             <span>Масштаб: {Math.round(zoomLevel * 100)}%</span>
           </div>
 
-          <div className="control-group">
+          <div className={styles.controlGroup}>
             <label>Толщина линии:</label>
             <input
               type="range"
@@ -54,7 +55,7 @@ const TimelineControls = ({
             <span>{lineSize}px</span>
           </div>
 
-          <div className="control-group">
+          <div className={styles.controlGroup}>
             <label>Радиус точек:</label>
             <input
               type="range"
@@ -66,7 +67,7 @@ const TimelineControls = ({
             <span>{ballSize}px</span>
           </div>
 
-          <div className="add-form">
+          <div className={styles.addForm}>
             <h4>Добавить новый шарик</h4>
             <input
               type="number"
