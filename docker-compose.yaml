@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: ./nginx
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    networks:
+      - microservices-net
+    depends_on:
+      - server
+      - client
+
+  server:
+    build: ./server
+    container_name: server
+    networks:
+      - microservices-net
+    env_file:
+      - .env
+    environment:
+      - DB_PORT=5432
+      - DB_HOST=timeline-db
+    depends_on:
+      timeline-db:
+        condition: service_healthy
+
+  client:
+    build: ./client
+    container_name: client
+    networks:
+      - microservices-net
+
+  timeline-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - timeline-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  timeline-db-data:
+
+networks:
+  microservices-net:
+    driver: bridge

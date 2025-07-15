@@ -26,7 +26,7 @@ def create_app(config_class: object = Config) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost"}})
 
     from app.routes.auth import auth_bp
     from app.routes.project import project_bp

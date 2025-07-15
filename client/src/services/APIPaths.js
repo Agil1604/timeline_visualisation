@@ -1,4 +1,4 @@
-export const API_BASE = "/api";
+const API_BASE = "/api";
 
 export const AUTH = {
   REGISTER:      `${API_BASE}/auth/register`,            // POST

@@ -1,8 +1,5 @@
 import os
-from dotenv import load_dotenv
 from datetime import timedelta
-
-load_dotenv()
 
 def get_database_uri() -> str:
     """Формирует URI для подключения к PostgreSQL."""

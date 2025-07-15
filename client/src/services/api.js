@@ -3,9 +3,7 @@ import { tokenService } from './TokenService';
 import { AUTH } from './APIPaths';
 import { LOGIN_PAGE } from '../routing/consts';
 
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-});
+const api = axios.create();
 
 api.interceptors.request.use(config => {
   let token;

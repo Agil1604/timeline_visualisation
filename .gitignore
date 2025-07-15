@@ -7,3 +7,6 @@ client/node_modules
 
 npm-debug.log*
 
+TODO
+
+*.pdf
