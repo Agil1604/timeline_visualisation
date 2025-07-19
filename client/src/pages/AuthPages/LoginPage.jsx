@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import AuthForm from '../../components/AuthForm/AuthForm';
 import Navbar from '../../components/Navbar/Navbar';
-import { useAuth } from '../../context/AuthContext';
-import { REGISTER_PAGE } from '../../routing/consts';
 import { LOGIN_FIELDS } from '../../components/AuthForm/consts';
-import { Link } from 'react-router-dom';
-import { FORGOT_PASSWORD_PAGE } from '../../routing/consts';
-import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
+import { REGISTER_PAGE, FORGOT_PASSWORD_PAGE } from '../../routing/consts';
 
 const Login = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

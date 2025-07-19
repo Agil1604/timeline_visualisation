@@ -1,10 +1,11 @@
 import { useState, Suspense, lazy } from 'react';
-import Navbar from '../../components/Navbar/Navbar';
-import './WelcomePage.css'
 import { Link } from 'react-router-dom';
+import { FiUser, FiShield, FiCloud } from 'react-icons/fi';
+
+import './WelcomePage.css'
+import Navbar from '../../components/Navbar/Navbar';
 import { LOGIN_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
-import { FiUser, FiShield, FiCloud } from 'react-icons/fi';
 
 const Footer = lazy(() => import('../../components/Footer/Footer'));
 

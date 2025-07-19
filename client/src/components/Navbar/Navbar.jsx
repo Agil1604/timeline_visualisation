@@ -1,5 +1,6 @@
-import { Link, useLocation } from 'react-router-dom';
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
 import './Navbar.css';
 import { useAuth } from '../../context/AuthContext';
 import { WELCOME_PAGE } from '../../routing/consts';

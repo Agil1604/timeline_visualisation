@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
 import Navbar from '../../components/Navbar/Navbar';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
-import { useParams } from 'react-router-dom';
 import { projectService } from '../../services/ProjectService';
 import './sharedStyles.css';
 import styles from './LinearProjectPage.module.css';

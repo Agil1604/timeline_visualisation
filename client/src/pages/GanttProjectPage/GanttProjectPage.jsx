@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { projectService } from '../../services/ProjectService';
 import {
   select,
   scaleTime,
@@ -15,6 +14,8 @@ import {
   line,
   curveBasis
 } from 'd3';
+
+import { projectService } from '../../services/ProjectService';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';

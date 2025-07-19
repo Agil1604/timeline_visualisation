@@ -1,22 +1,25 @@
-import { HOME_PAGE, LOGIN_PAGE, PROJET_PAGE, REGISTER_PAGE, WELCOME_PAGE, GANTT_PAGE, PROFILE_PAGE, FORGOT_PASSWORD_PAGE } from './consts'
+import { HOME_PAGE, LOGIN_PAGE, LINEAR_PROJECT_PAGE, REGISTER_PAGE, WELCOME_PAGE, GANTT_PROJECT_PAGE, PROFILE_PAGE, FORGOT_PASSWORD_PAGE } from './consts'
 
 import Home from '../pages/HomePage/HomePage';
-import Login from '../pages/LoginPage/LoginPage';
 import Welcome from '../pages/WelcomePage/WelcomePage';
 import Project from '../pages/LinearProjectPage/LinearProjectPage';
-import Register from '../pages/RegisterPage/RegisterPage';
 import GanttChart from '../pages/GanttProjectPage/GanttProjectPage';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
-import ForgotPassword from '../pages/ForgotPasswordPage/ForgotPasswordPage';
+import Login from '../pages/AuthPages/LoginPage';
+import Register from '../pages/AuthPages/RegisterPage';
+import ForgotPassword from '../pages/AuthPages/ForgotPasswordPage';
 
 export const publicRoutes = [
     {
-        path: LOGIN_PAGE,
-        component: <Login />,
-    },
-    {
         path: WELCOME_PAGE,
         component: <Welcome />,
+    }
+]
+
+export const onlyPublicRoute = [
+    {
+        path: LOGIN_PAGE,
+        component: <Login />,
     },
     {
         path: REGISTER_PAGE,
@@ -38,11 +41,11 @@ export const authRoutes = [
         component: <ProfilePage />,
     },
     {
-        path: PROJET_PAGE,
+        path: LINEAR_PROJECT_PAGE,
         component: <Project />,
     },
     {
-        path: GANTT_PAGE,
+        path: GANTT_PROJECT_PAGE,
         component: <GanttChart />,
     },
 ];

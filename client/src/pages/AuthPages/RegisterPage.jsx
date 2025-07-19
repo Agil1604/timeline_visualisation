@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
+
 import AuthForm from '../../components/AuthForm/AuthForm';
 import Navbar from '../../components/Navbar/Navbar';
-import { LOGIN_PAGE } from '../../routing/consts';
 import { REGISTER_FIELDS } from '../../components/AuthForm/consts';
-import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
+import { LOGIN_PAGE } from '../../routing/consts';
 
 const Register = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

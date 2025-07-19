@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+
 import styles from './HomePage.module.css';
 import cardStyles from '../../components/ProjectCard/ProjectCard.module.css';
 import Navbar from '../../components/Navbar/Navbar';

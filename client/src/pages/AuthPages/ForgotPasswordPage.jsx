@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import AuthForm from '../../components/AuthForm/AuthForm';
 import Navbar from '../../components/Navbar/Navbar';
 import { LOGIN_PAGE } from '../../routing/consts';
-import { toast } from 'react-toastify';
 
 const ForgotPassword = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

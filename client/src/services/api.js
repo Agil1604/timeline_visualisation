@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { tokenService } from './TokenService';
 import { AUTH } from './APIPaths';
 import { LOGIN_PAGE } from '../routing/consts';

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { timeParse } from 'd3';
+
 import styles from './TaskModal.module.css';
 import './sharedStyles.css';
 

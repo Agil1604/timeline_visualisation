@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+
 import styles from './ProfilePage.module.css';
 import Navbar from '../../components/Navbar/Navbar';
 import { WELCOME_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
 
 const ProfilePage = () => {
   const { user, delete_, changePassword } = useAuth();
