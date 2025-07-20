@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { FiHelpCircle } from "react-icons/fi";
 
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
@@ -16,7 +17,6 @@ const LinearProjectPage = () => {
   const dataRef = useRef();
   const { user } = useAuth();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
   const [selectedReadOnlyBall, setSelectedReadOnlyBall] = useState(null);
@@ -26,10 +26,6 @@ const LinearProjectPage = () => {
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
   const projectContainerRef = useRef(null);
   const clickTimer = useRef(null);
-  const [isDragging, setIsDragging] = useState(null); // 'left' или 'right'
-  const timelineLineRef = useRef(null);
-  const dragStartX = useRef(0);
-  const dragStartRange = useRef({ start: 0, end: 0 });
 
   const items = [
     {
@@ -51,6 +47,7 @@ const LinearProjectPage = () => {
     const loadProject = async () => {
       try {
         const projectData = await projectService.getProject(projectId);
+        console.log(projectData);
         const milestones = projectData.milestones.map(m => ({
           id: m.id,
           year: m.year,
@@ -77,91 +74,6 @@ const LinearProjectPage = () => {
 
     if (projectId) loadProject();
   }, [projectId]);
-
-  const handleWheel = useCallback((e) => {
-    e.preventDefault();
-    const ZOOM_SPEED = 0.1;
-    const delta = e.deltaY > 0 ? 1 : -1;
-  
-    if (!timelineLineRef.current) return;
-  
-    const timelineRect = timelineLineRef.current.getBoundingClientRect();
-    const localX = e.clientX - timelineRect.left;
-    const cursorPositionFraction = localX / timelineRect.width;
-  
-    if (cursorPositionFraction < 0 || cursorPositionFraction > 1) return;
-  
-    setVisibleRange(prev => {
-      const currentStart = prev.start;
-      const currentEnd = prev.end;
-      const currentRange = currentEnd - currentStart;
-      
-      const yearAtCursor = currentStart + cursorPositionFraction * currentRange;
-      
-      const newRange = delta > 0 
-        ? currentRange * (1 + ZOOM_SPEED) 
-        : currentRange * (1 - ZOOM_SPEED);
-  
-      const newStart = yearAtCursor - cursorPositionFraction * newRange;
-      const newEnd = yearAtCursor + (1 - cursorPositionFraction) * newRange;
-  
-      return {
-        start: Math.round(newStart * 100) / 100,
-        end: Math.round(newEnd * 100) / 100
-      };
-    });
-  }, []);
-
-  const handleMouseDown = (side) => (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setIsDragging(side);
-    dragStartX.current = e.clientX;
-    dragStartRange.current = { ...visibleRange };
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-
-  const handleMouseMove = useCallback((e) => {
-    if (!isDragging || !timelineLineRef.current) return;
-
-    const timelineRect = timelineLineRef.current.getBoundingClientRect();
-    const fullWidth = timelineRect.width;
-    const deltaX = e.clientX - dragStartX.current;
-
-    const deltaYears = (dragStartRange.current.end - dragStartRange.current.start) *
-      (deltaX / fullWidth) *
-      (isDragging === 'left' ? -1 : 1);
-
-    setVisibleRange(prev => {
-      let newStart = prev.start;
-      let newEnd = prev.end;
-
-      if (isDragging === 'left') {
-        newStart = dragStartRange.current.start + deltaYears;
-        newStart = Math.min(newStart, prev.end - 1);
-      } else {
-        newEnd = dragStartRange.current.end + deltaYears;
-        newEnd = Math.max(newEnd, prev.start + 1);
-      }
-
-      if (newStart >= newEnd) {
-        [newStart, newEnd] = [newEnd - 1, newStart + 1];
-      }
-
-      return {
-        start: Math.round(newStart * 100) / 100,
-        end: Math.round(newEnd * 100) / 100
-      };
-    });
-  }, [isDragging]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(null);
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
-  }, [handleMouseMove]);
-
 
   const handleSave = useCallback(async () => {
     if (!projectId) return;
@@ -368,13 +280,59 @@ const LinearProjectPage = () => {
     </div>
   );
 
+  const handleOpenHelp = () => {
+    console.log("Кнопочка")
+  }
+
+
+  useEffect(() => {
+    const container = projectContainerRef.current;
+    if (!container) return;
+
+    const wheelHandler = (e) => {
+      e.preventDefault();
+      const ZOOM_SPEED = 0.1;
+      const delta = e.deltaY > 0 ? 1 : -1;
+
+      const timelineRect = container.getBoundingClientRect();
+      const localX = e.clientX - timelineRect.left;
+      const cursorPositionFraction = localX / timelineRect.width;
+
+      if (cursorPositionFraction < 0 || cursorPositionFraction > 1) return;
+
+      setVisibleRange(prev => {
+        const currentStart = prev.start;
+        const currentEnd = prev.end;
+        const currentRange = currentEnd - currentStart;
+
+        const yearAtCursor = currentStart + cursorPositionFraction * currentRange;
+
+        const newRange = delta > 0
+          ? currentRange * (1 + ZOOM_SPEED)
+          : currentRange * (1 - ZOOM_SPEED);
+
+        const newStart = yearAtCursor - cursorPositionFraction * newRange;
+        const newEnd = yearAtCursor + (1 - cursorPositionFraction) * newRange;
+
+        return {
+          start: Math.round(newStart * 100) / 100,
+          end: Math.round(newEnd * 100) / 100
+        };
+      });
+    };
+
+    container.addEventListener('wheel', wheelHandler, { passive: false });
+
+    return () => {
+      container.removeEventListener('wheel', wheelHandler);
+    };
+  }, []);
+
   return (
     <div>
       <Navbar
         items={items}
         addLogout={true}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <TimelineControls
         lineSize={lineSize}
@@ -388,8 +346,8 @@ const LinearProjectPage = () => {
           if (years.length > 0) {
             const yearsArray = years.map(m => m.year);
             setVisibleRange({
-              start: Math.min(...yearsArray),
-              end: Math.max(...yearsArray),
+              start: Math.min(...yearsArray) - 1,
+              end: Math.max(...yearsArray) + 1,
             });
           }
         }}
@@ -397,25 +355,20 @@ const LinearProjectPage = () => {
       />
 
       <div className={styles.projectMainContent}>
+        <button className={styles.helpButton} onClick={handleOpenHelp}>
+          <FiHelpCircle />
+        </button>
         <div
           className={styles.projectContainerWrapper}
           ref={projectContainerRef}
-          onWheel={handleWheel}
         >
           <div className={styles.projectContainer}>
             <div
               className={styles.timelineLine}
-              ref={timelineLineRef}
               style={{ height: `${lineSize}px` }}
             >
-              <div
-                className={`${styles.timelineBorderHandle} ${styles.left}`}
-                onMouseDown={handleMouseDown('left')}
-              />
-              <div
-                className={`${styles.timelineBorderHandle} ${styles.right}`}
-                onMouseDown={handleMouseDown('right')}
-              />
+              <div className={`${styles.timelineBorderHandle} ${styles.left}`} />
+              <div className={`${styles.timelineBorderHandle} ${styles.right}`} />
             </div>
             <div className={styles.timelineItems}>
               {years

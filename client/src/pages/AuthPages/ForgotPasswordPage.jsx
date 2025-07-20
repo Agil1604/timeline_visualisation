@@ -7,7 +7,6 @@ import Navbar from '../../components/Navbar/Navbar';
 import { LOGIN_PAGE } from '../../routing/consts';
 
 const ForgotPassword = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,8 +35,6 @@ const ForgotPassword = () => {
       <Navbar
         items={[]}
         addLogout={false}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <AuthForm
         title="Восстановление пароля"

@@ -13,7 +13,6 @@ import { useAuth } from '../../context/AuthContext';
 const HomePage = () => {
   const { user } = useAuth();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const items = [
     {
       title: 'Профиль',
@@ -140,8 +139,6 @@ const HomePage = () => {
       <Navbar
         items={items}
         addLogout={true}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <div className={styles.container}>
         <div className={styles.header}>

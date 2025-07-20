@@ -9,8 +9,6 @@ import { useAuth } from '../../context/AuthContext';
 import { LOGIN_PAGE } from '../../routing/consts';
 
 const Register = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const navigate = useNavigate();
   const { register } = useAuth();
   const [formData, setFormData] = useState({
@@ -64,8 +62,6 @@ const Register = () => {
       <Navbar
         items={[]}
         addLogout={false}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <AuthForm
         title="Регистрация"

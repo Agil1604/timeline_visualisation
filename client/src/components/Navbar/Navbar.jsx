@@ -5,12 +5,12 @@ import './Navbar.css';
 import { useAuth } from '../../context/AuthContext';
 import { WELCOME_PAGE } from '../../routing/consts';
 
-const Navbar = ({ items, addLogout, isMenuOpen, toggleMenu }) => {
+const Navbar = ({ items }) => {
   const { logout, user } = useAuth();
   const location = useLocation();
 
   const logoPath = user ? `/user/${user.nickname}` : WELCOME_PAGE;
-
+  const addLogout = user ? true : false;
   return (
     <nav className="navbar">
       <div className="navbar-content">
@@ -21,16 +21,7 @@ const Navbar = ({ items, addLogout, isMenuOpen, toggleMenu }) => {
           </h1>
         </div>
 
-        <button
-          className="menu-toggle"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-          aria-expanded={isMenuOpen}
-        >
-          ☰
-        </button>
-
-        <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
+        <div className={"nav-links"}>
           {items.map(({ title, path }) => {
             const isActive = location.pathname === path;
             return (

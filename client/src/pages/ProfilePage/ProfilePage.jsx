@@ -8,7 +8,6 @@ import { useAuth } from '../../context/AuthContext';
 
 const ProfilePage = () => {
   const { user, delete_, changePassword } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
   const [passwords, setPasswords] = useState({
     oldPassword: '',
@@ -66,8 +65,6 @@ const ProfilePage = () => {
       <Navbar
         items={items}
         addLogout={true}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
       <div className={styles.content}>

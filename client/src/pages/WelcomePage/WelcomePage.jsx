@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import { FiUser, FiShield, FiCloud } from 'react-icons/fi';
 
@@ -12,8 +12,6 @@ const Footer = lazy(() => import('../../components/Footer/Footer'));
 const WelcomePage = () => {
   const { user, isLoading } = useAuth();
   const buttonPath = isLoading ? '#' : user ? `/user/${user.nickname}` : LOGIN_PAGE;
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const features = [
     {
@@ -38,8 +36,6 @@ const WelcomePage = () => {
       <Navbar
         items={[]}
         addLogout={false}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
       <main className="welcome-content" aria-label="Основной контент">

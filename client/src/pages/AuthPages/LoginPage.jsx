@@ -9,8 +9,6 @@ import { useAuth } from '../../context/AuthContext';
 import { REGISTER_PAGE, FORGOT_PASSWORD_PAGE } from '../../routing/consts';
 
 const Login = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -59,8 +57,6 @@ const Login = () => {
       <Navbar
         items={[]}
         addLogout={false}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
       <AuthForm
         title="Авторизация"

@@ -37,7 +37,6 @@ const GanttChart = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const margin = useMemo(() => ({
     top: 20,
@@ -444,8 +443,6 @@ const GanttChart = () => {
             { title: 'О нас', path: WELCOME_PAGE }
           ]}
         addLogout={true}
-        isMenuOpen={isMenuOpen}
-        toggleMenu={() => setIsMenuOpen(!isMenuOpen)}
       />
 
       <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
