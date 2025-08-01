@@ -9,6 +9,13 @@ import Login from '../pages/AuthPages/LoginPage';
 import Register from '../pages/AuthPages/RegisterPage';
 import ForgotPassword from '../pages/AuthPages/ForgotPasswordPage';
 
+import Info from '../pages/ProfilePage/ProfileInfo'
+import ChangePassword from '../pages/ProfilePage/ProfileChangePassword'
+import ChangeUsername from '../pages/ProfilePage/ProfileChangeUsername'
+import Delete from '../pages/ProfilePage/ProfileDelete'
+
+import { Navigate } from 'react-router-dom';
+
 export const publicRoutes = [
     {
         path: WELCOME_PAGE,
@@ -34,18 +41,40 @@ export const onlyPublicRoute = [
 export const authRoutes = [
     {
         path: HOME_PAGE,
-        component: <Home />,
-    }, 
+        element: <Home />,
+    },
     {
         path: PROFILE_PAGE,
-        component: <ProfilePage />,
+        element: <ProfilePage />,
+        children: [
+            {
+                index: true,
+                element: <Navigate to="info" replace />,
+            },
+            {
+                path: "info",
+                element: <Info />,
+            },
+            {
+                path: "change-password",
+                element: <ChangePassword />,
+            },
+            {
+                path: "change-username",
+                element: <ChangeUsername />,
+            },
+            {
+                path: "delete",
+                element: <Delete />,
+            },
+        ]
     },
     {
         path: LINEAR_PROJECT_PAGE,
-        component: <Project />,
+        element: <Project />,
     },
     {
         path: GANTT_PROJECT_PAGE,
-        component: <GanttChart />,
+        element: <GanttChart />,
     },
 ];

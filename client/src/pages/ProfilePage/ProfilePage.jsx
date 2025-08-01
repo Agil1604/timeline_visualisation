@@ -1,149 +1,60 @@
-import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { NavLink, Outlet } from 'react-router-dom';
 
 import styles from './ProfilePage.module.css';
+import { useAuth } from '../../context/AuthContext';
 import Navbar from '../../components/Navbar/Navbar';
 import { WELCOME_PAGE } from '../../routing/consts';
-import { useAuth } from '../../context/AuthContext';
 
 const ProfilePage = () => {
-  const { user, delete_, changePassword } = useAuth();
-  const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
-  const [passwords, setPasswords] = useState({
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [formErrors, setFormErrors] = useState({});
+    const { user } = useAuth();
+  
+    const items = [
+      { title: 'Главная', path: `/user/${user.nickname}` },
+      { title: 'О нас', path: WELCOME_PAGE }
+    ];
 
-  const items = [
-    { title: 'Главная', path: `/user/${user.nickname}` },
-    { title: 'О нас', path: WELCOME_PAGE }
-  ];
+    return (
+      <div className={styles.profilePageContainer}>
+        <Navbar
+          items={items}
+          addLogout={true}
+        />
+        <div className={styles.profileContainer}>
+          <div className={styles.settingsPanel}>
+            <Sidebar />
+            <div className={styles.mainContent}>
+              <Outlet />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+};
 
-  const validateForm = () => {
-    const errors = {};
-    if (!passwords.oldPassword) errors.oldPassword = 'Введите текущий пароль';
-    if (!passwords.newPassword) errors.newPassword = 'Введите новый пароль';
-    if (passwords.newPassword.length < 6) errors.newPassword = 'Пароль должен быть не менее 6 символов';
-    if (passwords.newPassword !== passwords.confirmPassword) errors.confirmPassword = 'Пароли не совпадают';
-    return errors;
-  };
-
-  const handlePasswordChange = async (e) => {
-    e.preventDefault();
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) return setFormErrors(errors);
-
-    try {
-      await changePassword({
-        oldPassword: passwords.oldPassword,
-        newPassword: passwords.newPassword
-      });
-      toast.success('Пароль успешно изменен!');
-      setShowChangePasswordForm(false);
-      setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
-      setFormErrors({});
-    } catch (err) {
-      toast.error(err.message || 'Ошибка при смене пароля');
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить!')) {
-      try {
-        await delete_();
-        toast.success('Аккаунт успешно удален');
-      } catch (err) {
-        toast.error(err.message || 'Не удалось удалить аккаунт');
-      }
-    }
-  };
-
+const Sidebar = () => {
   return (
-    <div className={styles.profileContainer}>
-      <Navbar
-        items={items}
-        addLogout={true}
-      />
-
-      <div className={styles.content}>
-        <div className={styles.profileHeader}>
-          <h1>{user.nickname}</h1>
+    <div className={styles.sidebar}>
+      <div className={styles.sidebarContent}>
+        <h2 className={styles.sidebarTitle}>Настройки профиля</h2>
+        
+        <div className={styles.sectionGroup}>
+          <h3>Основные</h3>
+          <NavLink to="info" className={({isActive}) => isActive ? styles.activeLink : styles.navLink}>
+            Профиль
+          </NavLink>
         </div>
 
-        <div className={styles.userInfo}>
-          <div className={styles.infoItem}>
-            <label>Email</label>
-            <span>{user.email}</span>
-          </div>
-          <div className={styles.infoItem}>
-            <label>Дата регистрации</label>
-            <span>{new Date(user.createdAt).toLocaleDateString()}</span>
-          </div>
-        </div>
-
-        {showChangePasswordForm && (
-          <form onSubmit={handlePasswordChange} className={styles.passwordForm}>
-            <h3>Смена пароля</h3>
-
-            <div className={styles.formGroup}>
-              <label>Текущий пароль</label>
-              <input
-                type="password"
-                value={passwords.oldPassword}
-                onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
-              />
-              {formErrors.oldPassword && <span className={styles.errorText}>{formErrors.oldPassword}</span>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Новый пароль</label>
-              <input
-                type="password"
-                value={passwords.newPassword}
-                onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-              />
-              {formErrors.newPassword && <span className={styles.errorText}>{formErrors.newPassword}</span>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Подтвердите пароль</label>
-              <input
-                type="password"
-                value={passwords.confirmPassword}
-                onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-              />
-              {formErrors.confirmPassword && <span className={styles.errorText}>{formErrors.confirmPassword}</span>}
-            </div>
-
-            <div className={styles.formActions}>
-              <button type="submit" className={styles.btnPrimary}>Сохранить</button>
-              <button
-                type="button"
-                className={styles.btnSecondary}
-                onClick={() => setShowChangePasswordForm(false)}
-              >
-                Отмена
-              </button>
-            </div>
-          </form>
-        )}
-
-        <div className={styles.actions}>
-          <button
-            onClick={() => setShowChangePasswordForm(!showChangePasswordForm)}
-            className={`${styles.btn} ${styles.btnPrimary}`}
-          >
-            {showChangePasswordForm ? 'Скрыть форму' : 'Сменить пароль'}
-          </button>
-
-          <button
-            onClick={handleDeleteAccount}
-            className={`${styles.btn} ${styles.btnDanger}`}
-          >
+        <div className={styles.sectionGroup}>
+          <h3>Настройки аккаунта</h3>
+          <NavLink to="change-password" className={({isActive}) => isActive ? styles.activeLink : styles.navLink}>
+            Сменить пароль
+          </NavLink>
+          <NavLink to="change-username" className={({isActive}) => isActive ? styles.activeLink : styles.navLink}>
+            Сменить имя пользователя
+          </NavLink>
+          <NavLink to="delete" className={({isActive}) => isActive ? styles.activeLink : styles.navLink}>
             Удалить аккаунт
-          </button>
+          </NavLink>
         </div>
       </div>
     </div>

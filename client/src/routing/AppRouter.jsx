@@ -36,8 +36,17 @@ export const AppRouter = () => {
                 </Route>
 
                 <Route element={<PrivateRoute />}>
-                    {authRoutes.map(({ path, component }) => (
-                        <Route key={path} path={path} element={component} />
+                    {authRoutes.map(({ path, element, children }) => (
+                        <Route key={path} path={path} element={element}>
+                            {children?.map((child) => (
+                                <Route
+                                    key={child.path || 'index'}
+                                    index={child.index}
+                                    path={child.path}
+                                    element={child.element}
+                                />
+                            ))}
+                        </Route>
                     ))}
                 </Route>
 
