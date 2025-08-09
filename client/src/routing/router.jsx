@@ -17,64 +17,64 @@ import Delete from '../pages/ProfilePage/ProfileDelete'
 import { Navigate } from 'react-router-dom';
 
 export const publicRoutes = [
-    {
-        path: WELCOME_PAGE,
-        component: <Welcome />,
-    }
+  {
+    path: WELCOME_PAGE,
+    component: <Welcome />,
+  }
 ]
 
 export const onlyPublicRoute = [
-    {
-        path: LOGIN_PAGE,
-        component: <Login />,
-    },
-    {
-        path: REGISTER_PAGE,
-        component: <Register />,
-    },
-    {
-        path: FORGOT_PASSWORD_PAGE,
-        component: <ForgotPassword />,
-    }
+  {
+    path: LOGIN_PAGE,
+    component: <Login />,
+  },
+  {
+    path: REGISTER_PAGE,
+    component: <Register />,
+  },
+  {
+    path: FORGOT_PASSWORD_PAGE,
+    component: <ForgotPassword />,
+  }
 ]
 
 export const authRoutes = [
-    {
-        path: HOME_PAGE,
-        element: <Home />,
-    },
-    {
-        path: PROFILE_PAGE,
-        element: <ProfilePage />,
-        children: [
-            {
-                index: true,
-                element: <Navigate to="info" replace />,
-            },
-            {
-                path: "info",
-                element: <Info />,
-            },
-            {
-                path: "change-password",
-                element: <ChangePassword />,
-            },
-            {
-                path: "change-username",
-                element: <ChangeUsername />,
-            },
-            {
-                path: "delete",
-                element: <Delete />,
-            },
-        ]
-    },
-    {
-        path: LINEAR_PROJECT_PAGE,
-        element: <Project />,
-    },
-    {
-        path: GANTT_PROJECT_PAGE,
-        element: <GanttChart />,
-    },
+  {
+    path: HOME_PAGE,
+    element: <Home />,
+  },
+  {
+    path: PROFILE_PAGE,
+    element: <ProfilePage />,
+    children: [
+      {
+        index: true,
+        element: <Navigate to="info" replace />,
+      },
+      {
+        path: "info",
+        element: <Info />,
+      },
+      {
+        path: "change-password",
+        element: <ChangePassword />,
+      },
+      {
+        path: "change-username",
+        element: <ChangeUsername />,
+      },
+      {
+        path: "delete",
+        element: <Delete />,
+      },
+    ]
+  },
+  {
+    path: LINEAR_PROJECT_PAGE,
+    element: <Project />,
+  },
+  {
+    path: GANTT_PROJECT_PAGE,
+    element: <GanttChart />,
+  },
 ];

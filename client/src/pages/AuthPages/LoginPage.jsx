@@ -3,7 +3,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import AuthForm from '../../components/AuthForm/AuthForm';
-import Navbar from '../../components/Navbar/Navbar';
 import { LOGIN_FIELDS } from '../../components/AuthForm/consts';
 import { useAuth } from '../../context/AuthContext';
 import { REGISTER_PAGE, FORGOT_PASSWORD_PAGE } from '../../routing/consts';
@@ -54,10 +53,6 @@ const Login = () => {
 
   return (
     <div>
-      <Navbar
-        items={[]}
-        addLogout={false}
-      />
       <AuthForm
         title="Авторизация"
         fields={LOGIN_FIELDS.map(field => ({
@@ -72,11 +67,7 @@ const Login = () => {
         onSubmit={handleSubmit}
         error={error}
         isLoading={isLoading}
-        extraLink={
-          <div className="auth-link">
-            <Link to={FORGOT_PASSWORD_PAGE}>Забыли пароль?</Link>
-          </div>
-        }
+        extraLink={<Link to={FORGOT_PASSWORD_PAGE}>Забыли пароль?</Link>}
       />
     </div>
   );

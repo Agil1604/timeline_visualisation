@@ -3,15 +3,15 @@ import styles from './ProfilePage.module.css'
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileInfo = () => {
-    const { user } = useAuth();
-    return (
+  const { user } = useAuth();
+  return (
     <div className={styles.pageContent}>
       <h1 className={styles.pageTitle}>Профиль</h1>
-      
+
       <div className={styles.profileCard}>
         <div className={styles.profileHeader}>
           <div className={styles.avatar}>
-            {user.nickname ? user.nickname[0].toUpperCase() : 'U'}
+            {user.nickname[0].toUpperCase()}
           </div>
           <h2>{user.nickname}</h2>
         </div>
@@ -28,7 +28,7 @@ const ProfileInfo = () => {
         </div>
       </div>
     </div>
-);
+  );
 };
 
 export default ProfileInfo;

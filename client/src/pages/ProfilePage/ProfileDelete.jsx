@@ -19,13 +19,13 @@ const ProfileDelete = () => {
   return (
     <div className={styles.pageContent}>
       <h1 className={styles.pageTitle}>Удаление аккаунта</h1>
-      
+
       <div className={styles.warningCard}>
         <div className={styles.warningMessage}>
           <h3>Внимание!</h3>
           <p>Удаление аккаунта является необратимой операцией. После удаления все ваши данные будут безвозвратно утеряны.</p>
         </div>
-        
+
         <div className={styles.deleteActions}>
           <button
             onClick={handleDeleteAccount}

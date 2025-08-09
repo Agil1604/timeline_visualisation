@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import './AuthForm.css';
+import styles from './AuthForm.module.css';
 
 const AuthForm = ({
   title,
@@ -15,17 +15,20 @@ const AuthForm = ({
   isLoading,
   extraLink
 }) => (
-  <div className="auth-container">
-    <form className="auth-form" onSubmit={onSubmit}>
-      <h2>{title}</h2>
-      {error && <div className="error-message">{error}</div>}
+  <div className={styles.authContainer}>
+    <form className={styles.authForm} onSubmit={onSubmit}>
+      <h2 className={styles.authTitle}>{title}</h2>
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
       {fields.map((field) => (
-        <div className="form-group" key={field.id}>
-          <label htmlFor={field.id}>{field.label}:</label>
+        <div className={styles.formGroup} key={field.id}>
+          <label className={styles.formLabel} htmlFor={field.id}>
+            {field.label}:
+          </label>
           <input
             type={field.type}
             id={field.id}
+            className={styles.formInput}
             value={field.value}
             onChange={field.onChange}
             required
@@ -36,16 +39,25 @@ const AuthForm = ({
 
       <button
         type="submit"
-        className="auth-button"
+        className={styles.authButton}
         disabled={isLoading}
       >
         {isLoading ? 'Загрузка...' : buttonText}
       </button>
 
-      {extraLink}
+      {extraLink && (
+        <div className={styles.extraLinkContainer}>
+          {React.cloneElement(extraLink, {
+            className: styles.extraLink
+          })}
+        </div>
+      )}
 
-      <div className="auth-link">
-        {altText} <Link to={linkPath}>{linkText}</Link>
+      <div className={styles.authLink}>
+        {altText}{' '}
+        <Link to={linkPath} className={styles.authLinkText}>
+          {linkText}
+        </Link>
       </div>
     </form>
   </div>

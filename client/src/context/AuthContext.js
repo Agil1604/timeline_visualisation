@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     };
-    
+
     initializeAuth();
   }, []);
 
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     authService.logout();
   };
 
-  const changePassword = async ({oldPassword, newPassword}) => {
+  const changePassword = async ({ oldPassword, newPassword }) => {
     const userData = await authService.changePassword(oldPassword, newPassword);
     setUser(userData);
     return userData;

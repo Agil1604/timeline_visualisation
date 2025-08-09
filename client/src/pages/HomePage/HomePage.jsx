@@ -3,26 +3,11 @@ import { toast } from 'react-toastify';
 
 import styles from './HomePage.module.css';
 import cardStyles from '../../components/ProjectCard/ProjectCard.module.css';
-import Navbar from '../../components/Navbar/Navbar';
-import { WELCOME_PAGE } from '../../routing/consts';
 import ProjectCard from '../../components/ProjectCard/ProjectCard';
 import Modal from './Modal';
 import { projectService } from '../../services/ProjectService';
-import { useAuth } from '../../context/AuthContext';
 
 const HomePage = () => {
-  const { user } = useAuth();
-
-  const items = [
-    {
-      title: 'Профиль',
-      path: `/user/${user.nickname}/profile`,
-    },
-    {
-      title: 'О нас',
-      path: WELCOME_PAGE,
-    }
-  ];
   const [projects, setProjects] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -135,177 +120,171 @@ const HomePage = () => {
   };
 
   return (
-    <div>
-      <Navbar
-        items={items}
-        addLogout={true}
-      />
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>Мои проекты</h1>
-          <div className={styles.sortControls}>
-            <label>Упорядочить по:</label>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Мои проекты</h1>
+        <div className={styles.sortControls}>
+          <label>Упорядочить по:</label>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className={styles.sortSelect}
+          >
+            <option value="name">Названию</option>
+            <option value="created">Дате создания</option>
+            <option value="updated">Дате последнего обновления</option>
+          </select>
+          <button
+            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+            className={styles.sortOrderButton}
+            type="button"
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
+      </div>
+      <div className={styles.projectsGrid}>
+        <div
+          className={`${styles.newProjectCard} ${cardStyles.card}`}
+          onClick={handleCreateNew}
+        >
+          <div className={cardStyles.icon}>+</div>
+          <div className={cardStyles.title}>Новый проект</div>
+        </div>
+
+        {getSortedProjects().map(project => (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            onAbout={() => handleAboutProject(project)}
+            onEdit={() => handleEditProject(project)}
+            onDelete={() => handleDeleteProject(project.id)}
+          />
+        ))}
+      </div>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <h2>Создать новый проект</h2>
+          <div className={styles.formGroup}>
+            <label>Название проекта:</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              maxLength={30}
+            />
+            <div className={styles.counter}>
+              {formData.title.length}/30
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Описание:</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              maxLength={250}
+            />
+            <div className={styles.counter}>
+              {formData.description.length}/250
+            </div>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Тип проекта:</label>
             <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={styles.sortSelect}
+              name="type"
+              value={formData.type}
+              onChange={handleInputChange}
+              required
             >
-              <option value="name">Названию</option>
-              <option value="created">Дате создания</option>
-              <option value="updated">Дате последнего обновления</option>
+              <option value="linear">Линейный</option>
+              <option value="gantt">Гант</option>
             </select>
-            <button
-              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-              className={styles.sortOrderButton}
-              type="button"
-            >
-              {sortOrder === 'asc' ? '↑' : '↓'}
+          </div>
+
+          <div className={styles.formButtons}>
+            <button type="button" onClick={closeModal}>
+              Отмена
+            </button>
+            <button type="submit">
+              Создать
             </button>
           </div>
-        </div>
-        <div className={styles.projectsGrid}>
-          <div
-            className={`${styles.newProjectCard} ${cardStyles.card}`}
-            onClick={handleCreateNew}
-          >
-            <div className={cardStyles.icon}>+</div>
-            <div className={cardStyles.title}>Новый проект</div>
-          </div>
+        </form>
+      </Modal>
 
-          {getSortedProjects().map(project => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onAbout={() => handleAboutProject(project)}
-              onEdit={() => handleEditProject(project)}
-              onDelete={() => handleDeleteProject(project.id)}
+      <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)}>
+        <div className={styles.modalForm}>
+          <h2>Информация о проекте</h2>
+          {selectedProject && (
+            <>
+              <div className={styles.formGroup}>
+                <label>Название:</label>
+                <p>{selectedProject.title}</p>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Описание:</label>
+                <p>{selectedProject.description || 'Нет описания'}</p>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Тип проекта:</label>
+                <p>{selectedProject.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <form onSubmit={handleUpdateProject} className={styles.modalForm}>
+          <h2>Редактировать проект</h2>
+          <div className={styles.formGroup}>
+            <label>Тип проекта:</label>
+            <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+          </div>
+          <div className={styles.formGroup}>
+            <label>Название проекта:</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              maxLength={30}
             />
-          ))}
-        </div>
-
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <form onSubmit={handleSubmit} className={styles.modalForm}>
-            <h2>Создать новый проект</h2>
-            <div className={styles.formGroup}>
-              <label>Название проекта:</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                maxLength={30}
-              />
-              <div className={styles.counter}>
-                {formData.title.length}/30
-              </div>
+            <div className={styles.counter}>
+              {formData.title.length}/30
             </div>
-
-            <div className={styles.formGroup}>
-              <label>Описание:</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                maxLength={250}
-              />
-              <div className={styles.counter}>
-                {formData.description.length}/250
-              </div>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Тип проекта:</label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="linear">Линейный</option>
-                <option value="gantt">Гант</option>
-              </select>
-            </div>
-
-            <div className={styles.formButtons}>
-              <button type="button" onClick={closeModal}>
-                Отмена
-              </button>
-              <button type="submit">
-                Создать
-              </button>
-            </div>
-          </form>
-        </Modal>
-
-        <Modal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)}>
-          <div className={styles.modalForm}>
-            <h2>Информация о проекте</h2>
-            {selectedProject && (
-              <>
-                <div className={styles.formGroup}>
-                  <label>Название:</label>
-                  <p>{selectedProject.title}</p>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Описание:</label>
-                  <p>{selectedProject.description || 'Нет описания'}</p>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Тип проекта:</label>
-                  <p>{selectedProject.type === 'linear' ? 'Линейный' : 'Гант'}</p>
-                </div>
-              </>
-            )}
           </div>
-        </Modal>
 
-        <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
-          <form onSubmit={handleUpdateProject} className={styles.modalForm}>
-            <h2>Редактировать проект</h2>
-            <div className={styles.formGroup}>
-              <label>Тип проекта:</label>
-              <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+          <div className={styles.formGroup}>
+            <label>Описание:</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              maxLength={250}
+            />
+            <div className={styles.counter}>
+              {formData.description.length}/250
             </div>
-            <div className={styles.formGroup}>
-              <label>Название проекта:</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                maxLength={30}
-              />
-              <div className={styles.counter}>
-                {formData.title.length}/30
-              </div>
-            </div>
+          </div>
 
-            <div className={styles.formGroup}>
-              <label>Описание:</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                maxLength={250}
-              />
-              <div className={styles.counter}>
-                {formData.description.length}/250
-              </div>
-            </div>
-
-            <div className={styles.formButtons}>
-              <button type="button" onClick={() => setIsEditModalOpen(false)}>
-                Отмена
-              </button>
-              <button type="submit">
-                Сохранить
-              </button>
-            </div>
-          </form>
-        </Modal>
-      </div>
+          <div className={styles.formButtons}>
+            <button type="button" onClick={() => setIsEditModalOpen(false)}>
+              Отмена
+            </button>
+            <button type="submit">
+              Сохранить
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

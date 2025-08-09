@@ -4,54 +4,61 @@ import { authRoutes, publicRoutes, onlyPublicRoute } from "./router";
 
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { LOGIN_PAGE, WELCOME_PAGE } from './consts';
+import Navbar from '../components/Navbar/Navbar';
+import styles from './AppRouter.module.css'
 
 const PrivateRoute = () => {
-    const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
 
-    if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>;
 
-    return user ? <Outlet /> : <Navigate to={LOGIN_PAGE} replace />;
+  return user ? <Outlet /> : <Navigate to={LOGIN_PAGE} replace />;
 };
 
 const OnlyPublicRoute = () => {
   const { user, loading } = useAuth();
 
   if (loading) return <div>Loading...</div>;
-  
+
   return user ? <Navigate to={`/user/${user.nickname}`} replace /> : <Outlet />;
 };
 
 export const AppRouter = () => {
-    return (
-        <AuthProvider>
-            <Routes>
-                {publicRoutes.map(({ path, component }) => (
-                    <Route key={path} path={path} element={component} />
-                ))}
+  return (
+    <AuthProvider>
+      <div className={styles.appContainer}>
+        <Navbar />
+        <main className={styles.mainContent}>
+          <Routes>
+            {publicRoutes.map(({ path, component }) => (
+              <Route key={path} path={path} element={component} />
+            ))}
 
-                <Route element={<OnlyPublicRoute />}>
-                    {onlyPublicRoute.map(({ path, component }) => (
-                        <Route key={path} path={path} element={component} />
-                    ))}
+            <Route element={<OnlyPublicRoute />}>
+              {onlyPublicRoute.map(({ path, component }) => (
+                <Route key={path} path={path} element={component} />
+              ))}
+            </Route>
+
+            <Route element={<PrivateRoute />}>
+              {authRoutes.map(({ path, element, children }) => (
+                <Route key={path} path={path} element={element}>
+                  {children?.map((child) => (
+                    <Route
+                      key={child.path || 'index'}
+                      index={child.index}
+                      path={child.path}
+                      element={child.element}
+                    />
+                  ))}
                 </Route>
+              ))}
+            </Route>
 
-                <Route element={<PrivateRoute />}>
-                    {authRoutes.map(({ path, element, children }) => (
-                        <Route key={path} path={path} element={element}>
-                            {children?.map((child) => (
-                                <Route
-                                    key={child.path || 'index'}
-                                    index={child.index}
-                                    path={child.path}
-                                    element={child.element}
-                                />
-                            ))}
-                        </Route>
-                    ))}
-                </Route>
-
-                <Route path="*" element={<Navigate to={WELCOME_PAGE} />} />
-            </Routes>
-        </AuthProvider>
-    );
+            <Route path="*" element={<Navigate to={WELCOME_PAGE} />} />
+          </Routes>
+        </main>
+      </div>
+    </AuthProvider>
+  );
 };

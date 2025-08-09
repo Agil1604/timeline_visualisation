@@ -8,7 +8,7 @@ const api = axios.create();
 
 api.interceptors.request.use(config => {
   let token;
-  
+
   if (config.url.includes(AUTH.REFRESH)) {
     token = tokenService.getRefreshToken();
   } else {
@@ -30,9 +30,9 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && 
-        !originalRequest._retry &&
-        !originalRequest.url.includes(AUTH.REFRESH)) {
+    if (error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes(AUTH.REFRESH)) {
       originalRequest._retry = true;
 
       const refreshToken = tokenService.getRefreshToken();

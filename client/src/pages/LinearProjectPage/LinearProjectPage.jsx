@@ -4,9 +4,6 @@ import { FiHelpCircle } from "react-icons/fi";
 
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
-import Navbar from '../../components/Navbar/Navbar';
-import { WELCOME_PAGE } from '../../routing/consts';
-import { useAuth } from '../../context/AuthContext';
 import { projectService } from '../../services/ProjectService';
 import './sharedStyles.css';
 import styles from './LinearProjectPage.module.css';
@@ -15,7 +12,6 @@ const LinearProjectPage = () => {
   const { project: projectId } = useParams();
   const [originalMilestones, setOriginalMilestones] = useState([]);
   const dataRef = useRef();
-  const { user } = useAuth();
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
@@ -26,17 +22,6 @@ const LinearProjectPage = () => {
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
   const projectContainerRef = useRef(null);
   const clickTimer = useRef(null);
-
-  const items = [
-    {
-      title: 'Профиль',
-      path: `/user/${user.nickname}/profile`,
-    },
-    {
-      title: 'О нас',
-      path: WELCOME_PAGE,
-    }
-  ];
 
   const [editPosition, setEditPosition] = useState({ x: 0, y: 0 });
   const [readOnlyPosition, setReadOnlyPosition] = useState({ x: 0, y: 0 });
@@ -330,10 +315,6 @@ const LinearProjectPage = () => {
 
   return (
     <div>
-      <Navbar
-        items={items}
-        addLogout={true}
-      />
       <TimelineControls
         lineSize={lineSize}
         onLineSizeChange={setLineSize}

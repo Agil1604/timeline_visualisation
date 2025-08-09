@@ -16,9 +16,6 @@ import {
 } from 'd3';
 
 import { projectService } from '../../services/ProjectService';
-import { WELCOME_PAGE } from '../../routing/consts';
-import { useAuth } from '../../context/AuthContext';
-import Navbar from '../../components/Navbar/Navbar';
 import TaskModal from './TaskModal';
 import TaskForm from './TaskForm';
 import './sharedStyles.css';
@@ -26,7 +23,6 @@ import styles from './GanttProjectPage.module.css';
 
 const GanttChart = () => {
   const { project: projectId } = useParams();
-  const { user } = useAuth();
   const containerRef = useRef();
   const svgRef = useRef();
   const tooltipRef = useRef();
@@ -318,7 +314,7 @@ const GanttChart = () => {
       .y(d => d.y)
       .curve(curveBasis);
 
-      sortedTasks.forEach(task => {
+    sortedTasks.forEach(task => {
       task.dependencies.forEach(dep => {
         const dependency = sortedTasks.find(t => t.id === dep.id);
         if (dependency) {
@@ -435,49 +431,38 @@ const GanttChart = () => {
   };
 
   return (
-    <div>
-      <Navbar
-        items={
-          [
-            { title: 'Профиль', path: `/user/${user.nickname}/profile` },
-            { title: 'О нас', path: WELCOME_PAGE }
-          ]}
-        addLogout={true}
-      />
-
-      <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
-        <div className={styles.taskControls}>
-          <button
-            className={styles.newTaskButton}
-            onClick={() => setIsTaskFormOpen(true)}
-          >
-            Новая задача
-          </button>
-        </div>
-
-        <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
-        <div ref={tooltipRef} className={styles.tooltip} style={{ opacity: 0 }}></div>
-
-        <TaskModal
-          task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          tasks={tasks}
-          timeFormat={timeFormat}
-          onEdit={handleTaskEdit}
-          onDelete={handleTaskDelete}
-        />
-        {isTaskFormOpen && (
-          <>
-            <div className="modal-backdrop" onClick={() => setIsTaskFormOpen(false)} />
-            <div className={styles.formModal}>
-              <TaskForm
-                onAddTask={handleAddTask}
-                onCancel={() => setIsTaskFormOpen(false)}
-              />
-            </div>
-          </>
-        )}
+    <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
+      <div className={styles.taskControls}>
+        <button
+          className={styles.newTaskButton}
+          onClick={() => setIsTaskFormOpen(true)}
+        >
+          Новая задача
+        </button>
       </div>
+
+      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
+      <div ref={tooltipRef} className={styles.tooltip} style={{ opacity: 0 }}></div>
+
+      <TaskModal
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+        tasks={tasks}
+        timeFormat={timeFormat}
+        onEdit={handleTaskEdit}
+        onDelete={handleTaskDelete}
+      />
+      {isTaskFormOpen && (
+        <>
+          <div className="modal-backdrop" onClick={() => setIsTaskFormOpen(false)} />
+          <div className={styles.formModal}>
+            <TaskForm
+              onAddTask={handleAddTask}
+              onCancel={() => setIsTaskFormOpen(false)}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

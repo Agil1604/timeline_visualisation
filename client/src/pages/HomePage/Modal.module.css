@@ -1,135 +1,137 @@
 /* Основной контейнер модального окна */
 .modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(3px);
-  animation: overlayEnter 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+    animation: overlayEnter 0.3s ease;
 }
 
 .modalContent {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  transform: translateY(20px);
-  animation: contentEnter 0.3s ease forwards;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(20px);
+    animation: contentEnter 0.3s ease forwards;
 }
 
 /* Стили формы внутри модалки */
 .modalForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
 }
 
 .formGroup label {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 0.95rem;
 }
 
 /* Поля ввода и элементы формы */
 .formGroup input,
 .formGroup textarea,
 .formGroup select {
-  padding: 0.75rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background: #f8f9fa;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
 }
 
 .formGroup input:focus,
 .formGroup textarea:focus,
 .formGroup select:focus {
-  outline: none;
-  border-color: #4285f4;
-  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
+    outline: none;
+    border-color: #4285f4;
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
 }
 
 /* Кастомный селект */
 .formGroup select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.2em;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2em;
 }
 
 /* Кнопки формы */
 .formButtons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
 .formButtons button {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  font-size: 0.95rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
 }
 
 .formButtons button[type="submit"] {
-  background-color: #4285f4;
-  color: white;
-  border: 1px solid #357abd;
+    background-color: #4285f4;
+    color: white;
+    border: 1px solid #357abd;
 }
 
 .formButtons button[type="submit"]:hover {
-  background-color: #357abd;
-  transform: translateY(-1px);
+    background-color: #357abd;
+    transform: translateY(-1px);
 }
 
 .formButtons button[type="button"] {
-  background-color: transparent;
-  color: #5f6368;
-  border: 1px solid #e0e0e0;
+    background-color: transparent;
+    color: #5f6368;
+    border: 1px solid #e0e0e0;
 }
 
 .formButtons button[type="button"]:hover {
-  background-color: #f8f9fa;
-  border-color: #c4c7cc;
+    background-color: #f8f9fa;
+    border-color: #c4c7cc;
 }
 
 /* Анимации */
 @keyframes contentEnter {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes overlayEnter {
-  from {
-    background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0);
-  }
-  to {
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(3px);
-  }
+    from {
+        background: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0);
+    }
+
+    to {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(3px);
+    }
 }

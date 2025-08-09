@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import AuthForm from '../../components/AuthForm/AuthForm';
-import Navbar from '../../components/Navbar/Navbar';
 import { REGISTER_FIELDS } from '../../components/AuthForm/consts';
 import { useAuth } from '../../context/AuthContext';
 import { LOGIN_PAGE } from '../../routing/consts';
@@ -59,10 +58,6 @@ const Register = () => {
 
   return (
     <div>
-      <Navbar
-        items={[]}
-        addLogout={false}
-      />
       <AuthForm
         title="Регистрация"
         fields={REGISTER_FIELDS.map(field => ({

@@ -2,8 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Link } from 'react-router-dom';
 import { FiUser, FiShield, FiCloud } from 'react-icons/fi';
 
-import './WelcomePage.css'
-import Navbar from '../../components/Navbar/Navbar';
+import styles from './WelcomePage.module.css';
 import { LOGIN_PAGE } from '../../routing/consts';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,42 +14,37 @@ const WelcomePage = () => {
 
   const features = [
     {
-      icon: <FiUser className="feature-icon" />,
+      icon: <FiUser className={styles.featureIcon} />,
       title: 'Удобный интерфейс',
       description: 'Интуитивно понятное управление и современный дизайн'
     },
     {
-      icon: <FiShield className="feature-icon" />,
+      icon: <FiShield className={styles.featureIcon} />,
       title: 'Безопасность',
       description: 'Защита данных и шифрование передаваемой информации'
     },
     {
-      icon: <FiCloud className="feature-icon" />,
+      icon: <FiCloud className={styles.featureIcon} />,
       title: 'Синхронизация',
       description: 'Работайте с любого устройства с автоматической синхронизацией'
     }
   ];
 
   return (
-    <div className="welcome">
-      <Navbar
-        items={[]}
-        addLogout={false}
-      />
-
-      <main className="welcome-content" aria-label="Основной контент">
-        <section 
-          className="hero-section" 
+    <div className={styles.welcome}>
+      <main className={styles.welcomeContent} aria-label="Основной контент">
+        <section
+          className={styles.heroSection}
           aria-labelledby="heroTitle"
         >
-          <div className="hero-content">
-            <h2 id="heroTitle" className="hero-title">Добро пожаловать в TimeLine</h2>
-            <p className="hero-description">
+          <div className={styles.heroContent}>
+            <h2 id="heroTitle" className={styles.heroTitle}>Добро пожаловать в TimeLine</h2>
+            <p className={styles.heroDescription}>
               Инновационное решение для ваших бизнес-задач. Начните использовать уже сегодня!
             </p>
             <Link to={buttonPath} prefetch>
               <button
-                className="cta-button"
+                className={styles.ctaButton}
                 disabled={isLoading}
                 aria-label={isLoading ? 'Загрузка данных пользователя' : 'Начать бесплатное использование'}
               >
@@ -60,25 +54,25 @@ const WelcomePage = () => {
           </div>
         </section>
 
-        <section className="features-section" id="features" aria-label="Наши преимущества">
-          <h3 className="section-title">Наши преимущества</h3>
-          <div className="features-grid">
+        <section className={styles.featuresSection} id="features" aria-label="Наши преимущества">
+          <h3 className={styles.sectionTitle}>Наши преимущества</h3>
+          <div className={styles.featuresGrid}>
             {features.map((feature, index) => (
-              <article className="feature-card" key={index}>
-                <header className="card-header">
-                  <div className="card-icon" aria-hidden="true">
+              <article className={styles.featureCard} key={index}>
+                <header className={styles.cardHeader}>
+                  <div className={styles.cardIcon} aria-hidden="true">
                     {feature.icon}
                   </div>
-                  <h4 className="card-title">{feature.title}</h4>
+                  <h4 className={styles.cardTitle}>{feature.title}</h4>
                 </header>
-                <p className="card-text">{feature.description}</p>
+                <p className={styles.cardText}>{feature.description}</p>
               </article>
             ))}
           </div>
         </section>
       </main>
 
-      <Suspense fallback={<div className="footer-loader">Загрузка футера...</div>}>
+      <Suspense fallback={<div className={styles.footerLoader}>Загрузка футера...</div>}>
         <Footer />
       </Suspense>
     </div>

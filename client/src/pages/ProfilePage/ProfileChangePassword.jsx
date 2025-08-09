@@ -43,7 +43,7 @@ const ProfileChangePassword = () => {
   return (
     <div className={styles.pageContent}>
       <h1 className={styles.pageTitle}>Смена пароля</h1>
-      
+
       <div className={styles.formCard}>
         <form onSubmit={handlePasswordChange} className={styles.passwordForm}>
           <div className={styles.formGroup}>
