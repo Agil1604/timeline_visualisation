@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { FiHelpCircle } from "react-icons/fi";
 
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
 import { projectService } from '../../services/ProjectService';
 import './sharedStyles.css';
 import styles from './LinearProjectPage.module.css';
+import HelpButton from '../../components/HelpButton/HelpButton';
+import HelpContent from './HelpContent';
 
 const LinearProjectPage = () => {
   const { project: projectId } = useParams();
@@ -265,11 +266,6 @@ const LinearProjectPage = () => {
     </div>
   );
 
-  const handleOpenHelp = () => {
-    console.log("Кнопочка")
-  }
-
-
   useEffect(() => {
     const container = projectContainerRef.current;
     if (!container) return;
@@ -314,7 +310,7 @@ const LinearProjectPage = () => {
   }, []);
 
   return (
-    <div>
+    <div className={styles.projectPage}>
       <TimelineControls
         lineSize={lineSize}
         onLineSizeChange={setLineSize}
@@ -334,11 +330,8 @@ const LinearProjectPage = () => {
         }}
         visibleRange={visibleRange}
       />
-
+      <HelpButton children={<HelpContent />} />
       <div className={styles.projectMainContent}>
-        <button className={styles.helpButton} onClick={handleOpenHelp}>
-          <FiHelpCircle />
-        </button>
         <div
           className={styles.projectContainerWrapper}
           ref={projectContainerRef}

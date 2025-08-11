@@ -20,6 +20,8 @@ import TaskModal from './TaskModal';
 import TaskForm from './TaskForm';
 import './sharedStyles.css';
 import styles from './GanttProjectPage.module.css';
+import HelpButton from '../../components/HelpButton/HelpButton';
+import HelpContent from './HelpContent';
 
 const GanttChart = () => {
   const { project: projectId } = useParams();
@@ -432,6 +434,7 @@ const GanttChart = () => {
 
   return (
     <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
+      <HelpButton children={<HelpContent />} />
       <div className={styles.taskControls}>
         <button
           className={styles.newTaskButton}

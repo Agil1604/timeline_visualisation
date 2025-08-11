@@ -1,10 +1,23 @@
+.projectPage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
 .projectMainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
     position: relative;
     padding: 20px;
     transition: margin-left 0.3s;
 }
 
 .projectContainerWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
     width: 100%;
     height: 70vh;
     overflow: visible;
@@ -12,6 +25,9 @@
 }
 
 .projectContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
     position: relative;
     width: 100%;
     min-height: 200px;
@@ -53,8 +69,10 @@
 }
 
 .timelineItems {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
     position: relative;
-    height: 200px;
 }
 
 .timelineItem {
@@ -122,15 +140,4 @@
 .events p {
     white-space: pre-line;
     word-break: break-word;
-}
-
-.helpButton {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    z-index: 10;
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
 }

@@ -1,0 +1,16 @@
+.helpButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+    background: none;
+    border: none;
+    font-size: 2.5em;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+}
+
+.helpButton:hover {
+    color: #333;
+}

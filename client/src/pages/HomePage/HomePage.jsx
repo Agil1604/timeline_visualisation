@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import styles from './HomePage.module.css';
 import cardStyles from '../../components/ProjectCard/ProjectCard.module.css';
 import ProjectCard from '../../components/ProjectCard/ProjectCard';
-import Modal from './Modal';
+import Modal from '../../components/Modal/Modal';
 import { projectService } from '../../services/ProjectService';
 
 const HomePage = () => {
