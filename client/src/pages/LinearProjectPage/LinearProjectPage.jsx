@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
@@ -8,9 +9,13 @@ import './sharedStyles.css';
 import styles from './LinearProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
+import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
+import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 
 const LinearProjectPage = () => {
   const { project: projectId } = useParams();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [originalMilestones, setOriginalMilestones] = useState([]);
   const dataRef = useRef();
 
@@ -41,6 +46,8 @@ const LinearProjectPage = () => {
           events: m.description,
         }));
 
+        setTitle(projectData.title);
+        setDescription(projectData.description);
         setYears(milestones);
         setOriginalMilestones(milestones);
         setBallSize(projectData.balls_size);
@@ -60,6 +67,9 @@ const LinearProjectPage = () => {
 
     if (projectId) loadProject();
   }, [projectId]);
+
+  const { updateTitle } = useProjectUpdate(projectId, description);
+  const handleTitleChange = (newTitle) => updateTitle(newTitle, setTitle);
 
   const handleSave = useCallback(async () => {
     if (!projectId) return;
@@ -111,7 +121,9 @@ const LinearProjectPage = () => {
       setOriginalMilestones(updatedMilestones);
       setBallSize(projectData.balls_size);
       setLineSize(projectData.line_width);
+      toast.success('Изменения сохранены');
     } catch (error) {
+      toast.error('Ошибка при создании проекта');
       console.error('Ошибка сохранения:', error);
     }
   }, [projectId, years, originalMilestones, lineSize, ballSize]);
@@ -311,6 +323,10 @@ const LinearProjectPage = () => {
 
   return (
     <div className={styles.projectPage}>
+      <ProjectTitle
+        initialTitle={title}
+        onTitleChange={handleTitleChange}
+      />
       <TimelineControls
         lineSize={lineSize}
         onLineSizeChange={setLineSize}

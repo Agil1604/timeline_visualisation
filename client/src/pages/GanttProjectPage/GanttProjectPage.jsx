@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   select,
   scaleTime,
@@ -22,6 +23,8 @@ import './sharedStyles.css';
 import styles from './GanttProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
+import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
+import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 
 const GanttChart = () => {
   const { project: projectId } = useParams();
@@ -35,6 +38,8 @@ const GanttChart = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   const margin = useMemo(() => ({
     top: 20,
@@ -51,6 +56,8 @@ const GanttChart = () => {
         setTasks(projectData.tasks);
         console.log(projectData)
         setOriginalTasks(projectData.tasks);
+        setTitle(projectData.title);
+        setDescription(projectData.description);
       } catch (error) {
         console.error('Ошибка загрузки проекта:', error);
       }
@@ -58,6 +65,9 @@ const GanttChart = () => {
 
     if (projectId) loadProject();
   }, [projectId]);
+
+  const { updateTitle } = useProjectUpdate(projectId, description);
+  const handleTitleChange = (newTitle) => updateTitle(newTitle, setTitle);
 
   // Расчет размеров графика
   useEffect(() => {
@@ -128,9 +138,10 @@ const GanttChart = () => {
       const projectData = await projectService.getProject(projectId);
       setTasks(projectData.tasks);
       setOriginalTasks(projectData.tasks);
+      toast.success('Изменения сохранены');
     } catch (error) {
       console.error('Ошибка сохранения:', error);
-      alert('Ошибка сохранения! Проверьте консоль для деталей.');
+      toast.error('Ошибка при создании проекта');
     }
   }, [projectId, tasks, originalTasks]);
 
@@ -434,6 +445,10 @@ const GanttChart = () => {
 
   return (
     <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
+      <ProjectTitle
+        initialTitle={title}
+        onTitleChange={handleTitleChange}
+      />
       <HelpButton children={<HelpContent />} />
       <div className={styles.taskControls}>
         <button

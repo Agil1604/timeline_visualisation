@@ -12,7 +12,7 @@ const HelpButton = ({ children }) => {
 
   return (
     <>
-      <button 
+      <button
         className={styles.helpButton}
         onClick={handleOpen}
         aria-label="Помощь"
