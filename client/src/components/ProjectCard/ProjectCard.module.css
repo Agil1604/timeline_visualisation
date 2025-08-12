@@ -6,7 +6,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
-    min-height: 150px;
     display: flex;
     flex-direction: column;
     text-decoration: none;
@@ -74,14 +73,6 @@
     margin-top: auto;
 }
 
-.meta span:first-child {
-    color: #80868b;
-}
-
-.meta span:last-child {
-    color: #5f6368;
-}
-
 .menuContainer {
     position: absolute;
     top: 10px;
@@ -93,7 +84,6 @@
     background: none;
     border: none;
     padding: 5px;
-    cursor: pointer;
     color: #5f6368;
     transition: all 0.2s;
 }
@@ -136,6 +126,25 @@
 
 .menuDropdown button svg {
     flex-shrink: 0;
+}
+
+.newProjectCard {
+    border: 2px dashed #dadce0;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.newProjectCard:hover {
+    border-color: #4285f4;
+    background-color: #f0f6ff;
+    color: #4285f4;
+    transform: translateY(-2px);
+}
+
+.icon {
+    font-size: 32px;
+    margin-bottom: 12px;
 }
 
 @keyframes menuAppear {

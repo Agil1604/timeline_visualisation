@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 import styles from './HomePage.module.css';
-import cardStyles from '../../components/ProjectCard/ProjectCard.module.css';
 import ProjectCard from '../../components/ProjectCard/ProjectCard';
+import NewProjectCard from '../../components/ProjectCard/NewProjectCard';
 import Modal from '../../components/Modal/Modal';
 import { projectService } from '../../services/ProjectService';
 
@@ -144,13 +144,7 @@ const HomePage = () => {
         </div>
       </div>
       <div className={styles.projectsGrid}>
-        <div
-          className={`${styles.newProjectCard} ${cardStyles.card}`}
-          onClick={handleCreateNew}
-        >
-          <div className={cardStyles.icon}>+</div>
-          <div className={cardStyles.title}>Новый проект</div>
-        </div>
+        <NewProjectCard handleCreateNew={handleCreateNew}/>
 
         {getSortedProjects().map(project => (
           <ProjectCard

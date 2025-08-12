@@ -4,7 +4,7 @@ import { MdInfo, MdModeEdit, MdDelete } from "react-icons/md";
 
 import styles from './ProjectCard.module.css';
 
-const ProjectCardMenu = ({ project, onAbout, onEdit, onDelete }) => {
+const ProjectCardMenu = ({ onAbout, onEdit, onDelete }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (

@@ -21,38 +21,6 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
     padding: 20px 0;
-    width: 100%;
-}
-
-/* Карточка нового проекта */
-.newProjectCard {
-    border: 2px dashed #dadce0;
-    border-radius: 8px;
-    min-height: 180px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    background-color: #f8f9fa;
-    color: #5f6368;
-}
-
-.newProjectCard:hover {
-    border-color: #4285f4;
-    background-color: #f0f6ff;
-    color: #4285f4;
-    transform: translateY(-2px);
-}
-
-.newProjectCard .icon {
-    font-size: 32px;
-    margin-bottom: 12px;
-}
-
-.newProjectCard .title {
-    font-weight: 500;
-    font-size: 1.1em;
 }
 
 /* Элементы управления сортировкой */
