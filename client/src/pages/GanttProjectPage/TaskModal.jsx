@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdModeEdit, MdDelete } from "react-icons/md";
+import { FiMoreVertical, FiX } from "react-icons/fi";
 import { timeParse } from 'd3';
 
 import styles from './TaskModal.module.css';
-import './sharedStyles.css';
+import sharedStyles from './sharedStyles.module.css'
 
 const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -97,19 +98,21 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
             <input
               value={editedTask.name}
               onChange={e => handleChange('name', e.target.value)}
-              className="edit-input"
+              className={styles.editInput}
             />
           ) : (
             task.name
           )}
         </h3>
         <div className={styles.modalActions} ref={menuRef}>
-          <button
-            className={styles.menuDots}
-            onClick={() => setShowMenu(!showMenu)}
-          >
-            ⋮
-          </button>
+          {!isEditing && (
+            <button
+              className={styles.menuDots}
+              onClick={() => setShowMenu(!showMenu)}
+            >
+              <FiMoreVertical />
+            </button>
+          )}
           {showMenu && (
             <div className={styles.dropdownMenu}>
               <button onClick={handleEditClick}>
@@ -122,7 +125,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
               </button>
             </div>
           )}
-          <button className={styles.closeBtn} onClick={handleClose}>×</button>
+          <button className={styles.closeBtn} onClick={handleClose}><FiX /></button>
         </div>
       </div>
 
@@ -133,7 +136,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
             <textarea
               value={editedTask.description}
               onChange={e => handleChange('description', e.target.value)}
-              className="edit-textarea"
+              className={styles.editTextarea}
             />
           ) : (
             task.description
@@ -147,7 +150,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
               type="date"
               value={timeFormat('%Y-%m-%d')(editedTask.start)}
               onChange={e => handleChange('start', timeParse('%Y-%m-%d')(e.target.value))}
-              className="edit-input"
+              className={styles.editInput}
             />
           ) : (
             timeFormat('%d %b %Y')(task.start)
@@ -161,7 +164,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
               type="date"
               value={timeFormat('%Y-%m-%d')(editedTask.end)}
               onChange={e => handleChange('end', timeParse('%Y-%m-%d')(e.target.value))}
-              className="edit-input"
+              className={styles.editInput}
             />
           ) : (
             timeFormat('%d %b %Y')(task.end)
@@ -181,7 +184,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
               }}
               min="0"
               max="100"
-              className="edit-input"
+              className={styles.editInput}
             />
           ) : (
             `${task.progress}%`
@@ -202,12 +205,12 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
         )}
 
         {!isEditing && task.isCritical && (
-          <p className="critical-text"><strong>Критический путь</strong></p>
+          <p className={sharedStyles.criticalText}><strong>Критический путь</strong></p>
         )}
 
         {task.dependencies.length > 0 && (
           <div>
-            <p><strong>Зависимости:</strong></p>
+            <p><strong>Зависимости: </strong></p>
             <ul>
               {task.dependencies.map(dep => {
                 const depTask = tasks.find(t => t.id === dep.id);
@@ -255,8 +258,8 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
         )}
         {isEditing && (
           <div className={styles.editButtons}>
-            <button className="save-btn" onClick={handleSave}>Сохранить</button>
-            <button className="cancel-btn" onClick={handleCancel}>Отмена</button>
+            <button className={sharedStyles.saveBtn} onClick={handleSave}>Сохранить</button>
+            <button className={sharedStyles.cancelBtn} onClick={handleCancel}>Отмена</button>
           </div>
         )}
       </div>

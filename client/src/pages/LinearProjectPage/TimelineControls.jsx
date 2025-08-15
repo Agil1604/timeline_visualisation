@@ -65,7 +65,7 @@ const TimelineControls = ({
           </div>
 
           <div className={styles.addForm}>
-            <h4>Добавить новый шарик</h4>
+            <h4>Добавить событие</h4>
             <input
               type="number"
               placeholder="Год"

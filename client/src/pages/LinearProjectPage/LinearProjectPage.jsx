@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { FiX } from 'react-icons/fi';
 
 import TimelineControls from './TimelineControls';
 import EditForm from './EditForm';
 import { projectService } from '../../services/ProjectService';
-import './sharedStyles.css';
 import styles from './LinearProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
@@ -38,7 +38,6 @@ const LinearProjectPage = () => {
     const loadProject = async () => {
       try {
         const projectData = await projectService.getProject(projectId);
-        console.log(projectData);
         const milestones = projectData.milestones.map(m => ({
           id: m.id,
           year: m.year,
@@ -104,7 +103,6 @@ const LinearProjectPage = () => {
       line_width: lineSize,
       balls_size: ballSize
     };
-    console.log(payload);
 
     try {
       await projectService.update("linear", projectId, payload);
@@ -123,7 +121,7 @@ const LinearProjectPage = () => {
       setLineSize(projectData.line_width);
       toast.success('Изменения сохранены');
     } catch (error) {
-      toast.error('Ошибка при создании проекта');
+      toast.error('Ошибка сохранения');
       console.error('Ошибка сохранения:', error);
     }
   }, [projectId, years, originalMilestones, lineSize, ballSize]);
@@ -273,7 +271,7 @@ const LinearProjectPage = () => {
         <p>{ball.events}</p>
       </div>
       <button className={styles.closeButton} onClick={onClose}>
-        ×
+        <FiX />
       </button>
     </div>
   );

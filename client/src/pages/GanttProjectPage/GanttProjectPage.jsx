@@ -19,7 +19,8 @@ import {
 import { projectService } from '../../services/ProjectService';
 import TaskModal from './TaskModal';
 import TaskForm from './TaskForm';
-import './sharedStyles.css';
+import Modal from '../../components/Modal/Modal';
+import sharedStyles from './sharedStyles.module.css'
 import styles from './GanttProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
@@ -54,7 +55,6 @@ const GanttChart = () => {
       try {
         const projectData = await projectService.getProject(projectId);
         setTasks(projectData.tasks);
-        console.log(projectData)
         setOriginalTasks(projectData.tasks);
         setTitle(projectData.title);
         setDescription(projectData.description);
@@ -291,7 +291,7 @@ const GanttChart = () => {
     const today = new Date();
 
     chart.append('line')
-      .attr('class', 'today-line')
+      .attr('class', styles.todayLine)
       .attr('x1', xScale(today))
       .attr('x2', xScale(today))
       .attr('y1', 0)
@@ -301,7 +301,7 @@ const GanttChart = () => {
       .attr('stroke-dasharray', '5,5');
 
     chart.append('text')
-      .attr('class', 'today-label')
+      .attr('class', styles.todayLabel)
       .attr('x', xScale(today) + 5)
       .attr('y', 20)
       .attr('fill', '#ff4444')
@@ -391,7 +391,7 @@ const GanttChart = () => {
           <p>Начало: ${timeFormat('%d %b %Y')(d.start)}</p>
           <p>Конец: ${timeFormat('%d %b %Y')(d.end)}</p>
           <p>Прогресс: ${d.progress}%</p>
-          ${d.isCritical ? '<p class="critical-text">Критический путь</p>' : ''}
+          ${d.isCritical ? `<p class=${sharedStyles.criticalText}>Критический путь</p>` : ''}
         </div>
       `)
       .style('left', `${event.pageX + 10}px`)
@@ -444,43 +444,43 @@ const GanttChart = () => {
   };
 
   return (
-    <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
+    <div>
       <ProjectTitle
         initialTitle={title}
         onTitleChange={handleTitleChange}
       />
-      <HelpButton children={<HelpContent />} />
-      <div className={styles.taskControls}>
-        <button
-          className={styles.newTaskButton}
-          onClick={() => setIsTaskFormOpen(true)}
+      <div className={styles.container} onClick={() => setSelectedTask(null)} ref={containerRef} >
+        <div className={styles.taskControls}>
+          <button
+            className={styles.newTaskButton}
+            onClick={() => setIsTaskFormOpen(true)}
+          >
+            Новая задача
+          </button>
+        </div>
+
+        <HelpButton children={<HelpContent />} />
+        <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
+        <div ref={tooltipRef} className={styles.tooltip} style={{ opacity: 0 }}></div>
+
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          tasks={tasks}
+          timeFormat={timeFormat}
+          onEdit={handleTaskEdit}
+          onDelete={handleTaskDelete}
+        />
+        <Modal 
+          isOpen={isTaskFormOpen} 
+          onClose={() => setIsTaskFormOpen(false)}
         >
-          Новая задача
-        </button>
+          <TaskForm
+            onAddTask={handleAddTask}
+            onCancel={() => setIsTaskFormOpen(false)}
+          />
+        </Modal>
       </div>
-
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
-      <div ref={tooltipRef} className={styles.tooltip} style={{ opacity: 0 }}></div>
-
-      <TaskModal
-        task={selectedTask}
-        onClose={() => setSelectedTask(null)}
-        tasks={tasks}
-        timeFormat={timeFormat}
-        onEdit={handleTaskEdit}
-        onDelete={handleTaskDelete}
-      />
-      {isTaskFormOpen && (
-        <>
-          <div className="modal-backdrop" onClick={() => setIsTaskFormOpen(false)} />
-          <div className={styles.formModal}>
-            <TaskForm
-              onAddTask={handleAddTask}
-              onCancel={() => setIsTaskFormOpen(false)}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import './sharedStyles.css';
+import sharedStyles from './sharedStyles.module.css'
 import styles from './TaskForm.module.css';
 
 const TaskForm = ({ onAddTask, onCancel }) => {
@@ -66,8 +66,8 @@ const TaskForm = ({ onAddTask, onCancel }) => {
         Критический путь
       </label>
       <div className={styles.formButtons}>
-        <button type="submit" className="save-btn">Создать</button>
-        <button type="button" className="cancel-btn" onClick={onCancel}>
+        <button type="submit" className={sharedStyles.saveBtn}>Создать</button>
+        <button type="button" className={sharedStyles.cancelBtn} onClick={onCancel}>
           Отмена
         </button>
       </div>
