@@ -442,7 +442,6 @@ const GanttChart = () => {
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
           tasks={tasks}
-          timeFormat={timeFormat}
           onEdit={handleTaskEdit}
           onDelete={handleTaskDelete}
         />

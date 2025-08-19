@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MdModeEdit, MdDelete } from "react-icons/md";
 import { FiMoreVertical, FiX } from "react-icons/fi";
-import { timeParse } from 'd3';
+import { timeParse, timeFormat } from 'd3';
 
 import styles from './TaskModal.module.css';
 import sharedStyles from './sharedStyles.module.css'
 
-const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
+const TaskModal = ({ task, onClose, tasks, onEdit, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTask, setEditedTask] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [error, setError] = useState('');
   const menuRef = useRef(null);
 
   const getDependencyTypeName = (type) => {
@@ -20,6 +21,11 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
       'sf': 'Start-to-Finish'
     };
     return types[type] || 'Неизвестный тип';
+  };
+
+  const validateDates = (startDate, endDate) => {
+    if (!startDate || !endDate) return false;
+    return startDate < endDate;
   };
 
   const handleDependencyChange = (taskId, checked) => {
@@ -45,6 +51,7 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
       setEditedTask({ ...task });
       setIsEditing(false);
       setShowMenu(false);
+      setError('');
     }
   }, [task]);
 
@@ -61,13 +68,21 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
   const handleEditClick = () => {
     setIsEditing(true);
     setShowMenu(false);
+    setError('');
   };
+
   const handleDelete = () => {
     onDelete(task.id);
     onClose();
   };
 
   const handleSave = () => {
+    if (!validateDates(editedTask.start, editedTask.end)) {
+      setError('Дата окончания должна быть позже даты начала');
+      return;
+    }
+
+    setError('');
     onEdit(editedTask);
     setIsEditing(false);
   };
@@ -76,16 +91,30 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
     setEditedTask({ ...task });
     setIsEditing(false);
     setShowMenu(false);
+    setError('');
   };
 
   const handleClose = () => {
     setIsEditing(false);
     setShowMenu(false);
+    setError('');
     onClose();
   };
 
   const handleChange = (field, value) => {
-    setEditedTask(prev => ({ ...prev, [field]: value }));
+    setEditedTask(prev => {
+      const updatedTask = { ...prev, [field]: value };
+
+      if ((field === 'start' || field === 'end') && updatedTask.start && updatedTask.end) {
+        if (!validateDates(updatedTask.start, updatedTask.end)) {
+          setError('Дата окончания должна быть позже даты начала');
+        } else {
+          setError('');
+        }
+      }
+
+      return updatedTask;
+    });
   };
 
   if (!task) return null;
@@ -130,6 +159,8 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
       </div>
 
       <div className={styles.modalBody}>
+        {error && <div className={sharedStyles.error}>{error}</div>}
+
         <p>
           <strong>Описание: </strong>
           {isEditing ? (
@@ -258,7 +289,13 @@ const TaskModal = ({ task, onClose, tasks, timeFormat, onEdit, onDelete }) => {
         )}
         {isEditing && (
           <div className={styles.editButtons}>
-            <button className={sharedStyles.saveBtn} onClick={handleSave}>Сохранить</button>
+            <button
+              className={sharedStyles.saveBtn}
+              onClick={handleSave}
+              disabled={!!error}
+            >
+              Сохранить
+            </button>
             <button className={sharedStyles.cancelBtn} onClick={handleCancel}>Отмена</button>
           </div>
         )}

@@ -9,10 +9,26 @@ const TaskForm = ({ onAddTask, onCancel }) => {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [isCritical, setIsCritical] = useState(false);
+  const [error, setError] = useState('');
+
+  const validateDates = (startDate, endDate) => {
+    if (!startDate || !endDate) return true;
+    return new Date(startDate) < new Date(endDate);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !start || !end) return;
+    setError('');
+
+    if (!name || !start || !end) {
+      setError('Все поля обязательны для заполнения');
+      return;
+    }
+
+    if (!validateDates(start, end)) {
+      setError('Дата окончания должна быть позже даты начала');
+      return;
+    }
 
     onAddTask({
       name,
@@ -23,9 +39,33 @@ const TaskForm = ({ onAddTask, onCancel }) => {
     });
   };
 
+  const handleStartChange = (e) => {
+    const newStart = e.target.value;
+    setStart(newStart);
+    
+    if (end && !validateDates(newStart, end)) {
+      setError('Дата окончания должна быть позже даты начала');
+    } else {
+      setError('');
+    }
+  };
+
+  const handleEndChange = (e) => {
+    const newEnd = e.target.value;
+    setEnd(newEnd);
+    
+    if (start && !validateDates(start, newEnd)) {
+      setError('Дата окончания должна быть позже дата начала');
+    } else {
+      setError('');
+    }
+  };
+
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h3>Создание новой задачи</h3>
+
+      {error && <div className={sharedStyles.error}>{error}</div>}
 
       <input
         type="text"
@@ -46,14 +86,14 @@ const TaskForm = ({ onAddTask, onCancel }) => {
         <input
           type="date"
           value={start}
-          onChange={(e) => setStart(e.target.value)}
+          onChange={handleStartChange}
           required
         />
         <span>до</span>
         <input
           type="date"
           value={end}
-          onChange={(e) => setEnd(e.target.value)}
+          onChange={handleEndChange}
           required
         />
       </div>
@@ -66,7 +106,13 @@ const TaskForm = ({ onAddTask, onCancel }) => {
         Критический путь
       </label>
       <div className={styles.formButtons}>
-        <button type="submit" className={sharedStyles.saveBtn}>Создать</button>
+        <button 
+          type="submit" 
+          className={sharedStyles.saveBtn}
+          disabled={!!error}
+        >
+          Создать
+        </button>
         <button type="button" className={sharedStyles.cancelBtn} onClick={onCancel}>
           Отмена
         </button>
@@ -74,6 +120,5 @@ const TaskForm = ({ onAddTask, onCancel }) => {
     </form>
   );
 };
-
 
 export default TaskForm;
