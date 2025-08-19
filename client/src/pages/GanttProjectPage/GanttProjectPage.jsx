@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import {
   select,
   scaleTime,
@@ -25,6 +24,7 @@ import styles from './GanttProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
 import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
+import { useProjectSave } from '../../hooks/useProjectSave';
 import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 
 const GanttChart = () => {
@@ -32,7 +32,6 @@ const GanttChart = () => {
   const containerRef = useRef();
   const svgRef = useRef();
   const tooltipRef = useRef();
-  const dataRef = useRef();
 
   const [tasks, setTasks] = useState([]);
   const [originalTasks, setOriginalTasks] = useState([]);
@@ -138,59 +137,35 @@ const GanttChart = () => {
       const projectData = await projectService.getProject(projectId);
       setTasks(projectData.tasks);
       setOriginalTasks(projectData.tasks);
-      toast.success('Изменения сохранены');
     } catch (error) {
       console.error('Ошибка сохранения:', error);
-      toast.error('Ошибка при создании проекта');
+      throw error;
     }
   }, [projectId, tasks, originalTasks]);
 
-  // Обработчики клавиш и закрытия вкладки
-  useEffect(() => {
-    dataRef.current = { handleSave, tasks, originalTasks, projectId };
+  const hasUnsavedChanges = useCallback(() => {
+    if (!projectId) return false;
 
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
-        e.preventDefault();
-        dataRef.current.handleSave();
-      }
-    };
+    return (
+      tasks.length !== originalTasks.length ||
+      tasks.some(t => !originalTasks.some(ot => ot.id === t.id)) ||
+      originalTasks.some(ot => !tasks.some(t => t.id === ot.id)) ||
+      tasks.some(t => {
+        const original = originalTasks.find(ot => ot.id === t.id);
+        return original && (
+          original.name !== t.name ||
+          original.description !== t.description ||
+          original.start !== t.start ||
+          original.end !== t.end ||
+          original.progress !== t.progress ||
+          original.isCritical !== t.isCritical ||
+          JSON.stringify(original.dependencies) !== JSON.stringify(t.dependencies)
+        );
+      })
+    );
+  }, [tasks, originalTasks, projectId]);
 
-    const handleBeforeUnload = (e) => {
-      const { tasks, originalTasks, projectId } = dataRef.current;
-      if (!projectId) return;
-
-      const hasChanges =
-        tasks.length !== originalTasks.length ||
-        tasks.some(t => !originalTasks.some(ot => ot.id === t.id)) ||
-        originalTasks.some(ot => !tasks.some(t => t.id === ot.id)) ||
-        tasks.some(t => {
-          const original = originalTasks.find(ot => ot.id === t.id);
-          return original && (
-            original.name !== t.name ||
-            original.description !== t.description ||
-            original.start !== t.start ||
-            original.end !== t.end ||
-            original.progress !== t.progress ||
-            original.isCritical !== t.isCritical ||
-            JSON.stringify(original.dependencies) !== JSON.stringify(t.dependencies)
-          );
-        });
-
-      if (hasChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [handleSave, originalTasks, projectId, tasks]);
+  useProjectSave(projectId, handleSave, hasUnsavedChanges);
 
   // Отрисовка графика
   useEffect(() => {
@@ -444,7 +419,7 @@ const GanttChart = () => {
   };
 
   return (
-    <div>
+    <div className={styles.projectPage}>
       <ProjectTitle
         initialTitle={title}
         onTitleChange={handleTitleChange}

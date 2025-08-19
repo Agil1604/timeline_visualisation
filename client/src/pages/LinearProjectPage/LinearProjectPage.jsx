@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { FiX } from 'react-icons/fi';
 
 import TimelineControls from './TimelineControls';
@@ -10,6 +9,7 @@ import styles from './LinearProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
 import HelpContent from './HelpContent';
 import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
+import { useProjectSave } from '../../hooks/useProjectSave';
 import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 
 const LinearProjectPage = () => {
@@ -17,7 +17,8 @@ const LinearProjectPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [originalMilestones, setOriginalMilestones] = useState([]);
-  const dataRef = useRef();
+  const [originalLineSize, setOriginalLineSize] = useState(2);
+  const [originalBallSize, setOriginalBallSize] = useState(60);
 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
@@ -51,6 +52,8 @@ const LinearProjectPage = () => {
         setOriginalMilestones(milestones);
         setBallSize(projectData.balls_size);
         setLineSize(projectData.line_width);
+        setOriginalBallSize(projectData.balls_size);
+        setOriginalLineSize(projectData.line_width);
 
         if (milestones.length > 0) {
           const yearsArray = milestones.map(m => m.year);
@@ -69,6 +72,29 @@ const LinearProjectPage = () => {
 
   const { updateTitle } = useProjectUpdate(projectId, description);
   const handleTitleChange = (newTitle) => updateTitle(newTitle, setTitle);
+
+  const hasUnsavedChanges = useCallback(() => {
+    const hasNewMilestones = years.some(m => !m.id);
+    
+    const hasUpdatedMilestones = years.some(m => {
+      const original = originalMilestones.find(om => om.id === m.id);
+      return original && (
+        original.year !== m.year ||
+        original.color !== m.color ||
+        original.events !== m.events
+      );
+    });
+    
+    const hasDeletedMilestones = originalMilestones.some(om => 
+      !years.some(m => m.id === om.id)
+    );
+    
+    const hasSettingsChanges = 
+      originalLineSize !== lineSize || 
+      originalBallSize !== ballSize;
+
+    return hasNewMilestones || hasUpdatedMilestones || hasDeletedMilestones || hasSettingsChanges;
+  }, [years, originalMilestones, lineSize, ballSize, originalLineSize, originalBallSize]);
 
   const handleSave = useCallback(async () => {
     if (!projectId) return;
@@ -119,54 +145,14 @@ const LinearProjectPage = () => {
       setOriginalMilestones(updatedMilestones);
       setBallSize(projectData.balls_size);
       setLineSize(projectData.line_width);
-      toast.success('Изменения сохранены');
+      setOriginalBallSize(projectData.balls_size);
+      setOriginalLineSize(projectData.line_width);
     } catch (error) {
-      toast.error('Ошибка сохранения');
       console.error('Ошибка сохранения:', error);
     }
   }, [projectId, years, originalMilestones, lineSize, ballSize]);
 
-  useEffect(() => {
-    dataRef.current = { handleSave, years, originalMilestones, projectId };
-
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.code === 'KeyS') {
-        e.preventDefault();
-        e.stopPropagation();
-        dataRef.current.handleSave();
-        return false;
-      }
-    };
-
-    const handleBeforeUnload = (e) => {
-      const { years, originalMilestones, projectId } = dataRef.current;
-      if (!projectId) return;
-
-      const hasChanges = years.some(m => !m.id) ||
-        years.some(m => {
-          const original = originalMilestones.find(om => om.id === m.id);
-          return original && (
-            original.year !== m.year ||
-            original.color !== m.color ||
-            original.events !== m.events
-          );
-        }) ||
-        originalMilestones.some(om => !years.some(m => m.id === om.id));
-
-      if (hasChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [handleSave, originalMilestones, projectId, years]);
+  const { handleSave: triggerSave } = useProjectSave(projectId, handleSave, hasUnsavedChanges);
 
   const handleDeleteBall = useCallback((ballToDelete) => {
     setYears(prev => prev.filter(item => item !== ballToDelete));
@@ -267,7 +253,6 @@ const LinearProjectPage = () => {
     <div className={styles.readOnlyPopup}>
       <h3>{ball.year}</h3>
       <div className={styles.events}>
-
         <p>{ball.events}</p>
       </div>
       <button className={styles.closeButton} onClick={onClose}>
@@ -343,6 +328,7 @@ const LinearProjectPage = () => {
           }
         }}
         visibleRange={visibleRange}
+        onSave={triggerSave}
       />
       <HelpButton children={<HelpContent />} />
       <div className={styles.projectMainContent}>
