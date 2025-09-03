@@ -9,11 +9,15 @@ class ProjectType(Enum):
     ENUM для представления различных видов проектов.
 
     Values:
-        LINEAR: Для линейного проекта.
+        LINEAR_DATES: Для линейной временной шкалы, основанной на датах.
+        LINEAR_YEARS: Для линейной временной шкалы, основанной на годах.
+        CHRONOLOGY: Для вертикальных хронологий.
         GANTT: Для диаграммы Ганта.
         OTHER: Для остальных видов.
     """
-    LINEAR = "linear"
+    LINEAR_DATES = "linear_dates"
+    LINEAR_YEARS = "linear_years"
+    CHRONOLOGY = "chronology"
     GANTT = "gantt"
     OTHER = "other"
 

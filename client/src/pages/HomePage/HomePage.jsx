@@ -6,6 +6,7 @@ import ProjectCard from '../../components/ProjectCard/ProjectCard';
 import NewProjectCard from '../../components/ProjectCard/NewProjectCard';
 import Modal from '../../components/Modal/Modal';
 import { projectService } from '../../services/ProjectService';
+import { TYPE_LABELS } from '../../const/projectTypes';
 
 const HomePage = () => {
   const [projects, setProjects] = useState([]);
@@ -13,7 +14,7 @@ const HomePage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'linear',
+    type: 'linear_years',
   });
   const [selectedProject, setSelectedProject] = useState(null);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
@@ -54,7 +55,7 @@ const HomePage = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ title: '', description: '', type: 'linear' });
+    setFormData({ title: '', description: '', type: 'linear_years' });
   };
 
   const handleSubmit = async (e) => {
@@ -108,7 +109,7 @@ const HomePage = () => {
         title: formData.title,
         description: formData.description,
       };
-      await projectService.updateProject(selectedProject.id, sendData);
+      await projectService.updateProjectMetadata(selectedProject.id, sendData);
       setProjects(prev => prev.map(p =>
         p.id === selectedProject.id ? { ...p, ...formData } : p
       ));
@@ -196,8 +197,10 @@ const HomePage = () => {
               onChange={handleInputChange}
               required
             >
-              <option value="linear">Линейный</option>
-              <option value="gantt">Гант</option>
+              <option value="linear_years">Временная шкала (годы)</option>
+              <option value="linear_dates">Временная шкала (даты)</option>
+              <option value="gantt">Диаграмма Ганта</option>
+              <option value="chronology">Хронология</option>
             </select>
           </div>
 
@@ -227,7 +230,7 @@ const HomePage = () => {
               </div>
               <div className={styles.formGroup}>
                 <label>Тип проекта:</label>
-                <p>{selectedProject.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+                <p>{TYPE_LABELS[selectedProject.type] || 'Неизвестный тип'}</p>
               </div>
             </>
           )}
@@ -239,7 +242,7 @@ const HomePage = () => {
           <h2>Редактировать проект</h2>
           <div className={styles.formGroup}>
             <label>Тип проекта:</label>
-            <p>{formData.type === 'linear' ? 'Линейный' : 'Гант'}</p>
+            <p>{TYPE_LABELS[formData.type] || 'Неизвестный тип'}</p>
           </div>
           <div className={styles.formGroup}>
             <label>Название проекта:</label>

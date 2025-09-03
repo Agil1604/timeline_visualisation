@@ -39,7 +39,6 @@ const GanttChart = () => {
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
 
   const margin = useMemo(() => ({
     top: 20,
@@ -56,7 +55,6 @@ const GanttChart = () => {
         setTasks(projectData.tasks);
         setOriginalTasks(projectData.tasks);
         setTitle(projectData.title);
-        setDescription(projectData.description);
       } catch (error) {
         console.error('Ошибка загрузки проекта:', error);
       }
@@ -65,7 +63,7 @@ const GanttChart = () => {
     if (projectId) loadProject();
   }, [projectId]);
 
-  const { updateTitle } = useProjectUpdate(projectId, description);
+  const { updateTitle } = useProjectUpdate(projectId);
   const handleTitleChange = (newTitle) => updateTitle(newTitle, setTitle);
 
   // Расчет размеров графика
@@ -133,7 +131,7 @@ const GanttChart = () => {
     };
 
     try {
-      await projectService.update("gantt", projectId, payload);
+      await projectService.updateProject(projectId, payload); 
       const projectData = await projectService.getProject(projectId);
       setTasks(projectData.tasks);
       setOriginalTasks(projectData.tasks);

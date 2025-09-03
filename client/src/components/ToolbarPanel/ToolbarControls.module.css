@@ -1,0 +1,47 @@
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.rangeControl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rangeControl label {
+  min-width: 120px;
+  font-weight: 500;
+}
+
+.rangeControl input[type="range"] {
+  flex: 1;
+}
+
+.button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background: #e9ecef;
+}
+
+.button.primary {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.button.primary:hover {
+  background: #0056b3;
+}

@@ -10,9 +10,11 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
             {
                 'created': [list новых milestones],
                 'updated': [list измененных milestones],
-                'deleted': [list ID удаляемых milestones]
-                'line_width': int
-                'balls_size': int
+                'deleted': [list ID удаляемых milestones],
+                'settings': {
+                    'line_width': int
+                    'balls_size': int
+                }
             }
 
     Returns:
@@ -41,8 +43,10 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
         ...     'created': [{'year': 2024, 'description': 'Test', 'color': '#ffffff'}],
         ...     'updated': [{'id': 1, 'year': 2023, 'description': 'Updated'}],
         ...     'deleted': [{'id': 2}],
-        ...     'line_width': 6,
-        ...     'balls_size': 60
+        ...     'settings': {
+        ...         'line_width': 6,
+        ...         'balls_size': 60
+        ...     }
         ... }
         >>> linear_update_handler(123, data)
     """
@@ -57,8 +61,9 @@ def linear_update_handler(project_id: int, data: dict) -> dict:
     }
 
     try:
-        project.line_width = data.get('line_width')
-        project.balls_size = data.get('balls_size')
+        settings = data.get('settings', {})
+        project.line_width = settings.get('line_width')
+        project.balls_size = settings.get('balls_size')
         for item in data.get('deleted', []):
             id = item['id']
             try:

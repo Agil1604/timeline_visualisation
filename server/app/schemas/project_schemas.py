@@ -1,10 +1,12 @@
 from marshmallow import Schema, fields, validate, ValidationError, validates_schema
 from marshmallow_enum import EnumField
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_oneofschema import OneOfSchema
+
 from app.models.project import Project, ProjectType
+from app.models.project_chronology import ProjectChronology, ChronologyMilestone
 from app.models.project_linear import ProjectLinear, Milestone
 from app.models.project_gantt import ProjectGantt, GanttTask, GanttConnection, GanttConnectionType
-from marshmallow_oneofschema import OneOfSchema
 
 class CreateProjectSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -37,6 +39,19 @@ class ProjectLinearUniqueSchema(SQLAlchemyAutoSchema):
     milestones = fields.Nested(MilestoneSchema, many=True)
     type = EnumField(ProjectType, by_value=True)
 
+
+class ChronologyMilestoneSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ChronologyMilestone
+        include_fk = True
+
+class ProjectChronologyUniqueSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ProjectChronology
+        include_relationships = True
+
+    milestones = fields.Nested(ChronologyMilestoneSchema, many=True)
+    type = EnumField(ProjectType, by_value=True)
 
 class GanttConnectionSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -72,14 +87,15 @@ class ProjectGanttUniqueSchema(SQLAlchemyAutoSchema):
 class ProjectPolymorphicUniqueSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
-        ProjectType.LINEAR.value: ProjectLinearUniqueSchema,
+        ProjectType.LINEAR_YEARS.value: ProjectLinearUniqueSchema,
+        ProjectType.CHRONOLOGY.value: ProjectChronologyUniqueSchema,        
         ProjectType.GANTT.value: ProjectGanttUniqueSchema,
         ProjectType.OTHER.value: BaseProjectSchema
     }
     def get_obj_type(self, obj):
         return obj.type.value
 
-class ProjectUpdateSchema(Schema):
+class ProjectMetadataUpdateSchema(Schema):
     title = fields.Str(validate=validate.Length(max=30))
     description = fields.Str(validate=validate.Length(max=250))
 
@@ -87,21 +103,9 @@ class ProjectUpdateSchema(Schema):
     def validate_at_least_one_field(self, data, **kwargs):
         if not data:
             raise ValidationError("Должно быть указано хотя бы одно поле для обновления")
-        
 
-class BaseSyncData(Schema):
-    created = fields.List(fields.Dict(), required=False)
-    updated = fields.List(fields.Dict(), required=False)
-    deleted = fields.List(fields.Dict(), required=False)
-
-class LinearSyncData(BaseSyncData):
-    line_width = fields.Int(required=False)
-    balls_size = fields.Int(required=False)
-
-class GanttSyncData(BaseSyncData):
-    pass
-
-updateSchemas = {
-    'linear': LinearSyncData(),
-    'gantt': GanttSyncData()
-}
+class ProjectUpdateSchema(Schema):
+    created  = fields.List(fields.Dict(), required=False)
+    updated  = fields.List(fields.Dict(), required=False)
+    deleted  = fields.List(fields.Dict(), required=False)
+    settings = fields.Dict(requered=False)

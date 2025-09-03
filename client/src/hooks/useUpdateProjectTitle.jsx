@@ -1,18 +1,17 @@
 import { useCallback } from 'react';
 import { projectService } from '../services/ProjectService';
 
-export const useProjectUpdate = (projectId, description) => {
+export const useProjectUpdate = (projectId) => {
   const updateTitle = useCallback(async (newTitle, setTitle) => {
     try {
-      await projectService.updateProject(projectId, { 
+      await projectService.updateProjectMetadata(projectId, { 
         title: newTitle, 
-        description 
       });
       setTitle(newTitle);
     } catch (error) {
       console.error('Ошибка сохранения заголовка:', error);
     }
-  }, [projectId, description]);
+  }, [projectId]);
 
   return { updateTitle };
-};
+}; 

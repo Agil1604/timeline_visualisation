@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { FiX } from 'react-icons/fi';
 
-import TimelineControls from './TimelineControls';
+import Toolbar from './Toolbar';
 import EditForm from './EditForm';
 import { projectService } from '../../services/ProjectService';
 import styles from './LinearProjectPage.module.css';
@@ -15,12 +15,10 @@ import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 const LinearProjectPage = () => {
   const { project: projectId } = useParams();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [originalMilestones, setOriginalMilestones] = useState([]);
   const [originalLineSize, setOriginalLineSize] = useState(2);
   const [originalBallSize, setOriginalBallSize] = useState(60);
 
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedBall, setSelectedBall] = useState(null);
   const [selectedReadOnlyBall, setSelectedReadOnlyBall] = useState(null);
   const [lineSize, setLineSize] = useState(2);
@@ -47,7 +45,6 @@ const LinearProjectPage = () => {
         }));
 
         setTitle(projectData.title);
-        setDescription(projectData.description);
         setYears(milestones);
         setOriginalMilestones(milestones);
         setBallSize(projectData.balls_size);
@@ -70,12 +67,12 @@ const LinearProjectPage = () => {
     if (projectId) loadProject();
   }, [projectId]);
 
-  const { updateTitle } = useProjectUpdate(projectId, description);
+  const { updateTitle } = useProjectUpdate(projectId);
   const handleTitleChange = (newTitle) => updateTitle(newTitle, setTitle);
 
   const hasUnsavedChanges = useCallback(() => {
     const hasNewMilestones = years.some(m => !m.id);
-    
+
     const hasUpdatedMilestones = years.some(m => {
       const original = originalMilestones.find(om => om.id === m.id);
       return original && (
@@ -84,13 +81,13 @@ const LinearProjectPage = () => {
         original.events !== m.events
       );
     });
-    
-    const hasDeletedMilestones = originalMilestones.some(om => 
+
+    const hasDeletedMilestones = originalMilestones.some(om =>
       !years.some(m => m.id === om.id)
     );
-    
-    const hasSettingsChanges = 
-      originalLineSize !== lineSize || 
+
+    const hasSettingsChanges =
+      originalLineSize !== lineSize ||
       originalBallSize !== ballSize;
 
     return hasNewMilestones || hasUpdatedMilestones || hasDeletedMilestones || hasSettingsChanges;
@@ -126,12 +123,14 @@ const LinearProjectPage = () => {
       deleted: originalMilestones
         .filter(om => !years.some(m => m.id === om.id))
         .map(om => ({ id: om.id })),
-      line_width: lineSize,
-      balls_size: ballSize
+      settings: {
+        line_width: lineSize,
+        balls_size: ballSize
+      }
     };
 
     try {
-      await projectService.update("linear", projectId, payload);
+      await projectService.updateProject(projectId, payload);
 
       const projectData = await projectService.getProject(projectId);
       const updatedMilestones = projectData.milestones.map(m => ({
@@ -306,18 +305,12 @@ const LinearProjectPage = () => {
 
   return (
     <div className={styles.projectPage}>
-      <ProjectTitle
-        initialTitle={title}
-        onTitleChange={handleTitleChange}
-      />
-      <TimelineControls
+      <Toolbar
         lineSize={lineSize}
         onLineSizeChange={setLineSize}
         ballSize={ballSize}
         onBallSizeChange={setBallSize}
         onAddYear={handleAddYear}
-        isPanelOpen={isPanelOpen}
-        onTogglePanel={() => setIsPanelOpen(!isPanelOpen)}
         onZoomRangeReset={() => {
           if (years.length > 0) {
             const yearsArray = years.map(m => m.year);
@@ -332,6 +325,10 @@ const LinearProjectPage = () => {
       />
       <HelpButton children={<HelpContent />} />
       <div className={styles.projectMainContent}>
+        <ProjectTitle
+          initialTitle={title}
+          onTitleChange={handleTitleChange}
+        />
         <div
           className={styles.projectContainerWrapper}
           ref={projectContainerRef}

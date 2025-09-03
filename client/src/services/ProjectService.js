@@ -29,7 +29,7 @@ class ProjectService {
     }
   }
 
-  async updateProject(id, formData) {
+  async updateProjectMetadata(id, formData) {
     try {
       const response = await api.put(PROJECTS.UPDATE(id), formData);
       return response.data;
@@ -38,9 +38,9 @@ class ProjectService {
     }
   }
 
-  async update(projectType, id, formData) {
+  async updateProject(id, formData) {
     try {
-      const response = await api.patch(PROJECTS.UPDATE_PROJECT(projectType, id), formData);
+      const response = await api.patch(PROJECTS.UPDATE_PROJECT(id), formData);
       return response.data;
     } catch (error) {
       throw this._handleError(error, 'Ошибка при частичном обновлении проекта');

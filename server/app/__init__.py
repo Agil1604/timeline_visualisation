@@ -15,7 +15,6 @@ def create_app(config_class: object = Config) -> Flask:
 
     Args:
         config_class (object): Конфигурационный класс приложения, содержайший поля необходимые для настройки приложения.
-
     
     Returns:
         Flask: Готовое Flask-приложение.
@@ -30,7 +29,10 @@ def create_app(config_class: object = Config) -> Flask:
 
     from app.routes.auth import auth_bp
     from app.routes.project import project_bp
+    from app.routes.user import user_bp
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(project_bp, url_prefix='/api/projects')
 
     with app.app_context():

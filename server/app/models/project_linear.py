@@ -1,6 +1,5 @@
 from app import db
 from app.models.project import Project, ProjectType
-from sqlalchemy.orm import Mapped
 
 class ProjectLinear(Project):
     """Представляет класс для линейного проекта.
@@ -14,13 +13,13 @@ class ProjectLinear(Project):
         balls_size (int): Диаметр шаров (в пикселях) (дефолтное значение 60).
         milestones (List[Milestone]): Список всех шаров данного проекта.
     """
-    __tablename__ = 'project_linear'
+    __tablename__ = 'project_linear_years'
     id = db.Column(db.Integer, db.ForeignKey('projects.id', ondelete='CASCADE'), primary_key=True)
     line_width = db.Column(db.Integer, default=2)
     balls_size = db.Column(db.Integer, default=60)
     
     __mapper_args__ = {
-        'polymorphic_identity': ProjectType.LINEAR
+        'polymorphic_identity': ProjectType.LINEAR_YEARS
     }
     
     milestones = db.relationship(
@@ -50,7 +49,7 @@ class Milestone(db.Model):
     
     project_id = db.Column(
         db.Integer, 
-        db.ForeignKey('project_linear.id', ondelete="CASCADE"),
+        db.ForeignKey('project_linear_years.id', ondelete="CASCADE"),
         nullable=False
     )
     

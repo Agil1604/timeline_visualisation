@@ -1,20 +1,36 @@
-import { HOME_PAGE, LOGIN_PAGE, LINEAR_PROJECT_PAGE, REGISTER_PAGE, WELCOME_PAGE, GANTT_PROJECT_PAGE, PROFILE_PAGE, FORGOT_PASSWORD_PAGE } from './consts'
+import { Navigate } from 'react-router-dom';
 
-import Home from '../pages/HomePage/HomePage';
+// Пути к проетам
+import { 
+  WELCOME_PAGE,
+  HOME_PAGE, 
+  PROFILE_PAGE,
+  LOGIN_PAGE,
+  FORGOT_PASSWORD_PAGE,
+  REGISTER_PAGE,
+  LINEAR_PROJECT_PAGE, 
+  GANTT_PROJECT_PAGE,
+  CHRONOLOGY_PROJECT_PAGE
+} from './consts'
+
+// Основные страницы
 import Welcome from '../pages/WelcomePage/WelcomePage';
-import Project from '../pages/LinearProjectPage/LinearProjectPage';
-import GanttChart from '../pages/GanttProjectPage/GanttProjectPage';
-import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import Home from '../pages/HomePage/HomePage';
 import Login from '../pages/AuthPages/LoginPage';
 import Register from '../pages/AuthPages/RegisterPage';
 import ForgotPassword from '../pages/AuthPages/ForgotPasswordPage';
 
+// Страницы профиля
+import Profile from '../pages/ProfilePage/ProfilePage';
 import Info from '../pages/ProfilePage/ProfileInfo'
 import ChangePassword from '../pages/ProfilePage/ProfileChangePassword'
 import ChangeUsername from '../pages/ProfilePage/ProfileChangeUsername'
 import Delete from '../pages/ProfilePage/ProfileDelete'
 
-import { Navigate } from 'react-router-dom';
+// Страницы проекта
+import LinearProject from '../pages/LinearProjectPage/LinearProjectPage';
+import GanttProject from '../pages/GanttProjectPage/GanttProjectPage';
+import ChronologyProject from '../pages/ChronologyProjectPage/ChronologyProjectPage';
 
 export const publicRoutes = [
   {
@@ -45,7 +61,7 @@ export const authRoutes = [
   },
   {
     path: PROFILE_PAGE,
-    element: <ProfilePage />,
+    element: <Profile />,
     children: [
       {
         index: true,
@@ -71,10 +87,14 @@ export const authRoutes = [
   },
   {
     path: LINEAR_PROJECT_PAGE,
-    element: <Project />,
+    element: <LinearProject />,
   },
   {
     path: GANTT_PROJECT_PAGE,
-    element: <GanttChart />,
+    element: <GanttProject />,
   },
+  {
+    path: CHRONOLOGY_PROJECT_PAGE,
+    element: <ChronologyProject />
+  }
 ];

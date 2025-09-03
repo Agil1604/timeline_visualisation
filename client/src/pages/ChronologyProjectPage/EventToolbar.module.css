@@ -1,0 +1,37 @@
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.modalForm input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modalForm button {
+  padding: 0.5rem 1rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modalForm button:hover {
+  background: #0056b3;
+}
+
+.orderControls {
+  display: flex;
+  gap: 8px;
+}
+
+.orderControls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}

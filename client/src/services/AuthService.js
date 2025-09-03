@@ -3,15 +3,6 @@ import { AUTH } from './APIPaths';
 import { tokenService } from './TokenService';
 
 class AuthService {
-  async register(formData) {
-    try {
-      const response = await api.post(AUTH.REGISTER, formData);
-      return response.data.user;
-    } catch (error) {
-      throw this._handleError(error, 'Ошибка регистрации');
-    }
-  }
-
   async login(formData) {
     try {
       const response = await api.post(AUTH.LOGIN, formData);
@@ -27,28 +18,6 @@ class AuthService {
 
   logout() {
     tokenService.clearTokens();
-  }
-
-  async changePassword(oldPassword, newPassword) {
-    try {
-      await api.post(AUTH.CHANGE_PASS, {
-        "old_password": oldPassword,
-        "new_password": newPassword
-      });
-      tokenService.clearTokens();
-    } catch (error) {
-      throw this._handleError(error, 'Ошибка смены пароля');
-    }
-  }
-
-  async deleteAccount() {
-    try {
-      await api.delete(AUTH.DELETE);
-    } catch (error) {
-      throw this._handleError(error, 'Ошибка удаления аккаунта');
-    } finally {
-      tokenService.clearTokens();
-    }
   }
 
   async checkAuth() {

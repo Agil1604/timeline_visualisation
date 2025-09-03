@@ -11,4 +11,5 @@
     flex-direction: column;
     width: 100%;
     transform: rotate(0deg);
+    background: var(--project-background-color);
 }

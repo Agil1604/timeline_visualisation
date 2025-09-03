@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
 import { authService } from '../services/AuthService';
+import { userService } from '../services/UserService';
 
 const AuthContext = createContext();
 
@@ -22,7 +23,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = async (email, password, nickname) => {
-    await authService.register(email, password, nickname);
+    await userService.register(email, password, nickname);
   };
 
   const login = async (email, password) => {
@@ -37,14 +38,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const changePassword = async ({ oldPassword, newPassword }) => {
-    const userData = await authService.changePassword(oldPassword, newPassword);
+    const userData = await userService.changePassword(oldPassword, newPassword);
     setUser(userData);
     return userData;
   };
 
   const delete_ = () => {
     setUser(null);
-    authService.deleteAccount();
+    userService.deleteAccount();
   };
 
   const value = {

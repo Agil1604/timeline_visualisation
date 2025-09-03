@@ -15,4 +15,7 @@ body {
     --primary-color: #0066ff;
     --text-color: #444;
     --hover-transition: all 0.3s ease;
+    
+    --project-background-color: #f5f7fb;
+    --project-main-color: #ffffff;
 }

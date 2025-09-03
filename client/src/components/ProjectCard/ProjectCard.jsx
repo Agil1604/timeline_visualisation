@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import cardStyles from './ProjectCard.module.css';
 import ProjectCardMenu from './ProjectCardMenu';
 import { useAuth } from '../../context/AuthContext';
+import { TYPE_LABELS } from '../../const/projectTypes';
 
 const ProjectCard = ({ project, onAbout, onEdit, onDelete }) => {
   const { user } = useAuth();
@@ -18,10 +19,12 @@ const ProjectCard = ({ project, onAbout, onEdit, onDelete }) => {
           onEdit={onEdit}
           onDelete={onDelete}
         />
-        <span className={cardStyles.typeBadge}>
-          {project.type === 'linear' ? 'Линейный' : 'Гант'}
-        </span>
-        <h3 className={cardStyles.title}>{project.title}</h3>
+        <div className={cardStyles.titleSection}>
+          <span className={cardStyles.typeBadge}>
+            {TYPE_LABELS[project.type] || 'Неизвестный тип'}
+          </span>
+          <h3 className={cardStyles.title}>{project.title}</h3>
+        </div>
       </div>
 
       <p className={cardStyles.description}>{project.description}</p>
