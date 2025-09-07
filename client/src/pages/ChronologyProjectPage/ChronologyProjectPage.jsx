@@ -9,7 +9,7 @@ import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
 import { useProjectSave } from '../../hooks/useProjectSave';
 
 import HelpButton from '../../components/HelpButton/HelpButton';
-import HelpContent from './HelpContent';
+import HelpContent from '../../components/HelpContent/ChronologyHelpContent';
 import Toolbar from './Toolbar';
 import EventToolbar from './EventToolbar';
 

@@ -7,7 +7,7 @@ import EditForm from './EditForm';
 import { projectService } from '../../services/ProjectService';
 import styles from './LinearProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
-import HelpContent from './HelpContent';
+import HelpContent from '../../components/HelpContent/LinearHelpContent';
 import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
 import { useProjectSave } from '../../hooks/useProjectSave';
 import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';

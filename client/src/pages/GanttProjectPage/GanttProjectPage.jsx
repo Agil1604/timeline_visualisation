@@ -22,7 +22,7 @@ import Modal from '../../components/Modal/Modal';
 import sharedStyles from './sharedStyles.module.css'
 import styles from './GanttProjectPage.module.css';
 import HelpButton from '../../components/HelpButton/HelpButton';
-import HelpContent from './HelpContent';
+import HelpContent from '../../components/HelpContent/GanttHelpContent';
 import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
 import { useProjectSave } from '../../hooks/useProjectSave';
 import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';

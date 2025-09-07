@@ -1,0 +1,108 @@
+.helpContent {
+  padding: 20px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.helpContent h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #3498db;
+  font-size: 1.8em;
+  font-weight: 600;
+}
+
+.helpContent h3 {
+  color: #34495e;
+  margin: 25px 0 15px 0;
+  font-size: 1.4em;
+  font-weight: 500;
+}
+
+.helpContent p {
+  margin-bottom: 16px;
+  text-align: justify;
+}
+
+.helpContent ul,
+.helpContent ol {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.helpContent li {
+  margin-bottom: 8px;
+  padding-left: 5px;
+}
+
+.helpContent strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.helpContent ul li {
+  list-style-type: disc;
+}
+
+.helpContent ol li {
+  list-style-type: decimal;
+}
+
+.helpContent ul li::marker {
+  color: #3498db;
+}
+
+.helpContent ol li::marker {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.helpContent ul li,
+.helpContent ol li {
+  line-height: 1.7;
+}
+
+.helpContent h3 + p {
+  margin-top: -5px;
+}
+
+.helpContent h3 + ul,
+.helpContent h3 + ol {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .helpContent {
+    padding: 15px;
+    max-width: 100%;
+  }
+  
+  .helpContent h2 {
+    font-size: 1.5em;
+  }
+  
+  .helpContent h3 {
+    font-size: 1.2em;
+  }
+  
+  .helpContent ul,
+  .helpContent ol {
+    padding-left: 20px;
+  }
+}
+
+.helpContent {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
