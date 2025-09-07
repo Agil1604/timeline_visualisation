@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
-import styles from './ChronologyProjectPage.module.css';
+import styles1 from './ChronologyProjectPage.module.css';
+import styles2 from './style2.module.css';
 import { projectService } from '../../services/ProjectService';
 import ProjectTitle from '../../components/ProjectTitle/ProjectTitle';
 import { useProjectUpdate } from '../../hooks/useUpdateProjectTitle';
@@ -14,10 +15,13 @@ import EventToolbar from './EventToolbar';
 
 const ChronologyProjectPage = () => {
   const { project: projectId } = useParams();
-  const [title, setTitle] = useState('История развития проекта');
+  const [title, setTitle] = useState('');
   const [events, setEvents] = useState([]);
   const [originalEvents, setOriginalEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentStyle, setCurrentStyle] = useState('left_sided');
+
+  const styles = currentStyle === 'left_sided' ? styles1 : styles2;
 
   const eventsWithMoveInfo = events.map((event, index, array) => {
     const eventsInSameYear = array.filter(e => e.year === event.year);
@@ -44,6 +48,7 @@ const ChronologyProjectPage = () => {
         setTitle(projectData.title);
         setEvents(projectData.milestones);
         setOriginalEvents(projectData.milestones);
+        setCurrentStyle(projectData.chronology_type);
       } catch (error) {
         console.error('Ошибка загрузки проекта:', error);
       }
@@ -112,7 +117,7 @@ const ChronologyProjectPage = () => {
       deleted: originalEvents
         .filter(oe => !events.find(event => event.id === oe.id))
         .map(oe => ({ id: oe.id })),
-      settings: { type: "type1" }
+      settings: { type: currentStyle }
     };
 
     try {
@@ -124,7 +129,7 @@ const ChronologyProjectPage = () => {
     } catch (error) {
       console.error('Ошибка сохранения:', error);
     }
-  }, [projectId, events, originalEvents]);
+  }, [projectId, events, originalEvents, currentStyle]);
 
   useProjectSave(projectId, handleSave, hasUnsavedChanges);
 
@@ -202,9 +207,52 @@ const ChronologyProjectPage = () => {
     });
   };
 
+  const toggleStyle = () => {
+    setCurrentStyle(prev => prev === 'left_sided' ? 'centered' : 'left_sided');
+  };
+
+  const renderEvents = () => {
+    if (currentStyle === 'left_sided') {
+      return sortedEvents.map((event) => (
+        <div
+          key={event.id}
+          className={styles.timelineItem}
+          onClick={() => handleEventClick(event)}
+        >
+          <div className={styles.timelineLine}></div>
+          <div className={styles.timelineYear}>{event.year}</div>
+          <div className={styles.timelineContent}>
+            <h3>{event.title}</h3>
+            <p>{event.description}</p>
+          </div>
+        </div>
+      ));
+    } else {
+      return sortedEvents.map((event, index) => (
+        <div
+          key={event.id}
+          className={`${styles.timelineItem} ${
+            index % 2 === 0 ? styles.timelineItemLeft : styles.timelineItemRight
+          }`}
+          onClick={() => handleEventClick(event)}
+        >
+          <div className={styles.timelineLine}></div>
+          <div className={styles.timelineYear}>{event.year}</div>
+          <div className={styles.timelineContent}>
+            <h3>{event.title}</h3>
+            <p>{event.description}</p>
+          </div>
+        </div>
+      ));
+    }
+  };
+
   return (
     <div className={styles.projectPage}>
-      <Toolbar onAddEvent={onAddEvent} />
+      <Toolbar 
+        onAddEvent={onAddEvent}
+        toggleStyle={toggleStyle}
+      />
       <HelpButton children={<HelpContent />} />
 
       {selectedEvent && (
@@ -223,20 +271,7 @@ const ChronologyProjectPage = () => {
           onTitleChange={handleTitleChange}
         />
         <div className={styles.timeline}>
-          {sortedEvents.map((event) => (
-            <div
-              key={event.id}
-              className={styles.timelineItem}
-              onClick={() => handleEventClick(event)}
-            >
-              <div className={styles.timelineLine}></div>
-              <div className={styles.timelineYear}>{event.year}</div>
-              <div className={styles.timelineContent}>
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
-              </div>
-            </div>
-          ))}
+          {renderEvents()}
         </div>
       </div>
     </div>

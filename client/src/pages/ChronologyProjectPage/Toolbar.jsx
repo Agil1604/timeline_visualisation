@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import ToolbarPanel from '../../components/ToolbarPanel/ToolbarPanel';
 import ControlGroup from '../../components/ToolbarPanel/ControlGroup';
-// import RangeControl from '../../components/ToolbarPanel/RangeControl';
 import ButtonControl from '../../components/ToolbarPanel/ButtonControl';
 import Modal from '../../components/Modal/Modal';
 import styles from './Toolbar.module.css';
 
-const Toolbar = ({onAddEvent}) => {
+const Toolbar = ({ onAddEvent, toggleStyle }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newEventYear, setNewEventYear] = useState('');
   const [newEventTitle, setNewEventTitle] = useState('');
@@ -29,6 +28,7 @@ const Toolbar = ({onAddEvent}) => {
     setNewEventDescription('');
     setIsModalOpen(false);
   };
+
   return (
     <ToolbarPanel title="Панель управления">
       <Modal isOpen={isModalOpen} onClose={onCloseModal}>
@@ -55,9 +55,17 @@ const Toolbar = ({onAddEvent}) => {
           <button onClick={handleAddNew}>Добавить</button>
         </div>
       </Modal>
+      
       <ControlGroup>
         <ButtonControl onClick={() => setIsModalOpen(true)} variant="primary">
           Добавить событие
+        </ButtonControl>
+      </ControlGroup>
+
+      <ControlGroup>
+        <h4>Стиль отображения</h4>
+        <ButtonControl onClick={toggleStyle}>
+          Переключить стиль
         </ButtonControl>
       </ControlGroup>
     </ToolbarPanel>

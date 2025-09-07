@@ -7,11 +7,11 @@ class ProjectChronologyType(Enum):
     ENUM для представления различных представлений одного и того же проекта.
 
     Values:
-        LEFT_SIDED: .
-        CENTERED: .
+        LEFT_SIDED: для проектов, содержимое которых расположено по левую сторону.
+        CENTERED: для проектов, содержимое которых отцентрировано.
     """
-    LEFT_SIDED = "type1"
-    CENTERED = "type2"
+    LEFT_SIDED = "left_sided"
+    CENTERED = "centered"
 
 class ProjectChronology(Project):
     """Представляет класс для хронологии.

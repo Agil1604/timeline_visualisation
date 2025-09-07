@@ -16,7 +16,7 @@ const ProjectCardMenu = ({ onAbout, onEdit, onDelete }) => {
           setIsMenuOpen(!isMenuOpen);
         }}
       >
-        <FiMoreHorizontal />
+        <FiMoreHorizontal size={16}/>
       </button>
 
       {isMenuOpen && (

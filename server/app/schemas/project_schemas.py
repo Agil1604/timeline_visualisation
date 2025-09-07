@@ -4,7 +4,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow_oneofschema import OneOfSchema
 
 from app.models.project import Project, ProjectType
-from app.models.project_chronology import ProjectChronology, ChronologyMilestone
+from app.models.project_chronology import ProjectChronology, ChronologyMilestone, ProjectChronologyType
 from app.models.project_linear import ProjectLinear, Milestone
 from app.models.project_gantt import ProjectGantt, GanttTask, GanttConnection, GanttConnectionType
 
@@ -52,6 +52,7 @@ class ProjectChronologyUniqueSchema(SQLAlchemyAutoSchema):
 
     milestones = fields.Nested(ChronologyMilestoneSchema, many=True)
     type = EnumField(ProjectType, by_value=True)
+    chronology_type = EnumField(ProjectChronologyType, by_value=True)
 
 class GanttConnectionSchema(SQLAlchemyAutoSchema):
     class Meta:

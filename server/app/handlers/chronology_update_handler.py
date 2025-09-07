@@ -1,4 +1,4 @@
-from app.models.project_chronology import ProjectChronology, ChronologyMilestone
+from app.models.project_chronology import ProjectChronology, ChronologyMilestone, ProjectChronologyType
 from app import db
 
 def chronology_update_handler(project_id: int, data: dict) -> dict:
@@ -14,8 +14,8 @@ def chronology_update_handler(project_id: int, data: dict) -> dict:
         "conflicts": []
     }
     try:
-        # settings = data.get('settings', {})
-        # project.line_width = settings.get('type')
+        settings = data.get('settings', {})
+        project.chronology_type = ProjectChronologyType(settings.get('type'))
         for item in data.get('deleted', []):
             id = item['id']
             try:
