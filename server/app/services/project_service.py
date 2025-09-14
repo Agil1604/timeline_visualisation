@@ -6,10 +6,12 @@ from app import db
 
 from app.models.project import Project, ProjectType
 from app.models.project_linear import ProjectLinear
+from app.models.project_linear_dates import ProjectLinearDates
 from app.models.project_chronology import ProjectChronology
 from app.models.project_gantt import ProjectGantt
 
 from app.handlers.linear_update_handler import linear_update_handler
+from app.handlers.linear_dates_update_handler import linear_dates_update_handler
 from app.handlers.gantt_update_handler import gantt_update_handler
 from app.handlers.chronology_update_handler import chronology_update_handler
 
@@ -20,13 +22,14 @@ class ProjectService:
     """
     _project_classes: Dict[ProjectType, Type[Project]] = {
         ProjectType.LINEAR_YEARS: ProjectLinear,
-        ProjectType.LINEAR_DATES: ProjectLinear,
+        ProjectType.LINEAR_DATES: ProjectLinearDates,
         ProjectType.CHRONOLOGY: ProjectChronology,
         ProjectType.GANTT: ProjectGantt,
     }
 
     _update_handlers: Dict[ProjectType, Callable[[int, Dict], Dict]] = {
         ProjectType.LINEAR_YEARS: linear_update_handler,
+        ProjectType.LINEAR_DATES: linear_dates_update_handler,
         ProjectType.GANTT: gantt_update_handler,
         ProjectType.CHRONOLOGY: chronology_update_handler
     }

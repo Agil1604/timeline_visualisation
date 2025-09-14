@@ -1,0 +1,163 @@
+.projectPage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--project-background-color);
+}
+
+.projectMainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 20px;
+    transition: margin-left 0.3s;
+    background: var(--project-main-color);
+    margin: 0 auto;
+    width: 70%;
+}
+
+.projectContainerWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 70vh;
+    overflow: visible;
+    position: relative;
+}
+
+.projectContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    margin: 40px 0;
+    transition: all 0.3s ease;
+}
+
+.timelineLine {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #333;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+.timelineBorderHandle {
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+    z-index: 2;
+    transition: all 0.2s;
+}
+
+.timelineBorderHandle.left {
+    left: -10px;
+}
+
+.timelineBorderHandle.right {
+    right: -10px;
+}
+
+.timelineItems {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.timelineItem {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timelineBall {
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+    text-align: center;
+    font-size: 14px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.timelineBall:hover {
+    transform: scale(1.1);
+}
+
+.readOnlyPopup {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    min-width: 200px;
+}
+
+.readOnlyPopup h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.editPopup {
+    position: fixed;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 20px;
+    min-width: 300px;
+    animation: slideIn 0.2s ease;
+}
+
+.closeButton {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #999;
+}
+
+.events p {
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

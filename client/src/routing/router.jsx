@@ -8,7 +8,8 @@ import {
   LOGIN_PAGE,
   FORGOT_PASSWORD_PAGE,
   REGISTER_PAGE,
-  LINEAR_PROJECT_PAGE, 
+  LINEAR_PROJECT_PAGE,
+  LINEAR_DATES_PROJECT_PAGE,
   GANTT_PROJECT_PAGE,
   CHRONOLOGY_PROJECT_PAGE
 } from './consts'
@@ -31,6 +32,7 @@ import Delete from '../pages/ProfilePage/ProfileDelete'
 import LinearProject from '../pages/LinearProjectPage/LinearProjectPage';
 import GanttProject from '../pages/GanttProjectPage/GanttProjectPage';
 import ChronologyProject from '../pages/ChronologyProjectPage/ChronologyProjectPage';
+import LinearDatesProjectPage from '../pages/LinearDatesProjectPage/LinearDatesProjectPage';
 
 export const publicRoutes = [
   {
@@ -96,5 +98,9 @@ export const authRoutes = [
   {
     path: CHRONOLOGY_PROJECT_PAGE,
     element: <ChronologyProject />
+  },
+  {
+    path: LINEAR_DATES_PROJECT_PAGE,
+    element: <LinearDatesProjectPage />
   }
 ];

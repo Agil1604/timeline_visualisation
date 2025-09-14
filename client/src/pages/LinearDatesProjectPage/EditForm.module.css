@@ -1,0 +1,81 @@
+.editForm {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f5f6fa;
+    border-radius: 8px;
+}
+
+.editForm h3 {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+}
+
+.formHeader {
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+}
+
+.formActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.formButton {
+    flex: 1;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.submitButton {
+    background: #27ae60;
+    color: white;
+}
+
+.submitButton:hover {
+    background: #219a52;
+}
+
+.deleteButton {
+    background: #e74c3c;
+    color: white;
+}
+
+.deleteButton:hover {
+    background: #c0392b;
+}
+
+.cancelButton {
+    background: #95a5a6;
+    color: white;
+}
+
+.cancelButton:hover {
+    background: #7f8c8d;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.formGroup input[type="date"],
+.formGroup input[type="color"],
+.formGroup textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.formGroup textarea {
+    resize: vertical;
+}

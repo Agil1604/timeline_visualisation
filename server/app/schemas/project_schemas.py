@@ -7,6 +7,7 @@ from app.models.project import Project, ProjectType
 from app.models.project_chronology import ProjectChronology, ChronologyMilestone, ProjectChronologyType
 from app.models.project_linear import ProjectLinear, Milestone
 from app.models.project_gantt import ProjectGantt, GanttTask, GanttConnection, GanttConnectionType
+from app.models.project_linear_dates import ProjectLinearDates, LinearDatesMilestone
 
 class CreateProjectSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -39,6 +40,19 @@ class ProjectLinearUniqueSchema(SQLAlchemyAutoSchema):
     milestones = fields.Nested(MilestoneSchema, many=True)
     type = EnumField(ProjectType, by_value=True)
 
+
+class LinearDatesMilestoneSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = LinearDatesMilestone
+        include_fk = True
+
+class ProjectLinearDatesUniqueSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = ProjectLinearDates
+        include_relationships = True
+        
+    milestones = fields.Nested(LinearDatesMilestoneSchema, many=True)
+    type = EnumField(ProjectType, by_value=True)
 
 class ChronologyMilestoneSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -89,6 +103,7 @@ class ProjectPolymorphicUniqueSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
         ProjectType.LINEAR_YEARS.value: ProjectLinearUniqueSchema,
+        ProjectType.LINEAR_DATES.value: ProjectLinearDatesUniqueSchema,
         ProjectType.CHRONOLOGY.value: ProjectChronologyUniqueSchema,        
         ProjectType.GANTT.value: ProjectGanttUniqueSchema,
         ProjectType.OTHER.value: BaseProjectSchema
